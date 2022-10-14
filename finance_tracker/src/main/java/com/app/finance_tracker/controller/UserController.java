@@ -25,4 +25,13 @@ public class UserController {
         return user;
     }
 
+    @GetMapping("/users")
+    public User getUser() {
+        User user = new User();
+        user.setFirstName("tosho");
+        user.setLastName("toshov");
+        user.setLastLogin(LocalDateTime.now());
+        return user;
+    }
+
 }
