@@ -3,6 +3,7 @@ package com.app.finance_tracker.controller;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,15 @@ public class UserController {
         // validate credentials
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
+        return user;
+    }
+
+    @GetMapping("/users")
+    public User getUser() {
+        User user = new User();
+        user.setFirstName("tosho");
+        user.setLastName("toshov");
+        user.setLastLogin(LocalDateTime.now());
         return user;
     }
 
