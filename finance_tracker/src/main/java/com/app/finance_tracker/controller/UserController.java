@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,9 +26,11 @@ public class UserController extends MasterControllerForExceptionHandlers {
     private ModelMapper modelMapper;
     @Autowired
     private UserValidation userValidation;
+    @Autowired
+    private PasswordEncoder encoder;
 
     @PostMapping("/register")
-    public User registerUser(@RequestBody UserRegistrationDTO userDTO) {
+    public UserWithoutPasswordDTO registerUser(@RequestBody UserRegistrationDTO userDTO) {
         if(!userValidation.validateEmail(userDTO.getEmail())){
             throw new BadRequestException("Invalid email");
         }
@@ -53,8 +56,9 @@ public class UserController extends MasterControllerForExceptionHandlers {
             throw new BadRequestException("Username already exists");
         });
         User user = modelMapper.map(userDTO, User.class);
+        user.setPassword(encoder.encode(user.getPassword()));
         userRepository.save(user);
-        return user;
+        return modelMapper.map(user, UserWithoutPasswordDTO.class);
     }
 
     @GetMapping("/users")
