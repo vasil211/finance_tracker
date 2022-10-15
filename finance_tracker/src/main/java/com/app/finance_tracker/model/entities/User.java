@@ -2,6 +2,7 @@ package com.app.finance_tracker.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import java.time.LocalDateTime;
 
