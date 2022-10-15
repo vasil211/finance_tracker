@@ -96,4 +96,6 @@ CREATE TABLE scheduled_payments (
         REFERENCES accounts (id)
 );
 
+insert into currencies(abbreviation, full_name) values("BGN", "Bulgarian Lev")
+
 

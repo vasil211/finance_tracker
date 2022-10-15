@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name  = "accounts")
+@Table(name  = "currencies")
 public class Currency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
