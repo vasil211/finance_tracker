@@ -63,14 +63,15 @@ public class UserController extends MasterControllerForExceptionHandlers {
 
     @PutMapping("/updateProfile")
     public ResponseEntity<UserWithoutPasswordDTO> updateUser(@RequestBody UserRegistrationDTO userDTO) {
-        if (userRepository.findById(userDTO.getId()).isEmpty()) {
+        Optional<User> optUser = userRepository.findById(userDTO.getId());
+        if (optUser.isEmpty()) {
             throw new BadRequestException("User does not exist");
         }
+        User user = optUser.get();
         BadRequestException exception = validateCredentials(userDTO);
         if (exception != null) {
             throw exception;
         }
-        User user = userRepository.findById(userDTO.getId()).orElseThrow(() -> new BadRequestException("Invalid user"));
         if (!user.getEmail().equals(userDTO.getEmail())) {
             userRepository.findByEmail(userDTO.getEmail()).ifPresent(user1 -> {
                 throw new BadRequestException("Email already exists");
