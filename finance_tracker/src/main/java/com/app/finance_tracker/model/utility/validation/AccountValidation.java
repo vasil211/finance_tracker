@@ -20,17 +20,10 @@ public class AccountValidation {
     }
 
 
-    public Account validateAccountForCreation(AccountCreateDTO accountDTO) {
+    public void validateAccountForCreation(AccountCreateDTO accountDTO) {
         if(!validateName(accountDTO.getName())) {
             throw new InvalidArgumentsException("Invalid name");
         }
-        Account account = new Account();
-        account.setName(accountDTO.getName());
-        account.setUser(userRepository.findById(accountDTO.getUserId())
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid user id")));
-        account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid currency id")));
-        return account;
     }
 
     public Account validateAccountForUpdate(AccountCreateDTO accountDTO) {

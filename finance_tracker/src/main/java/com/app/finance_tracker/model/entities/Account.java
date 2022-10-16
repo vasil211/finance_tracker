@@ -2,8 +2,6 @@ package com.app.finance_tracker.model.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.context.annotation.Bean;
-
 
 @Data
 @Entity

@@ -36,14 +36,13 @@ public class UserController extends MasterControllerForExceptionHandlers {
     @PostMapping("/register")
     public ResponseEntity<UserWithoutPasswordDTO> registerUser(@RequestBody UserRegistrationDTO userDTO) {
         userValidation.validateUSerForRegistration(userDTO);
-
         User user = modelMapper.map(userDTO, User.class);
         user.setPassword(encoder.encode(user.getPassword()));
         userRepository.save(user);
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
-    @Transactional
+
     @PostMapping("/login")
     public ResponseEntity<UserWithoutPasswordDTO> loginUser(@RequestBody UserLoginDTO userDTO) {
         User user = userRepository.findByUsername(userDTO.getUsername())

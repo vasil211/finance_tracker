@@ -3,11 +3,13 @@ package com.app.finance_tracker.controller;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.AccountAddMoneyDTO;
 import com.app.finance_tracker.model.dto.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.AccountRepository;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
+import com.app.finance_tracker.model.utility.service.AccountService;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -30,61 +32,56 @@ public class AccountController extends MasterControllerForExceptionHandlers {
     private AccountValidation accountValidation;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private AccountService accountService;
 
 
     @GetMapping("/getAllAccounts/{id}")
-    public ResponseEntity<List<Account>> getAllAccountsForUser(@PathVariable String id) {
-        long userId;
-        try {
-            userId = Long.parseLong(id);
-        } catch (NumberFormatException e) {
-            throw new InvalidArgumentsException("Invalid id");
-        }
-        return ResponseEntity.ok(accountRepository.findAllByUserId(userId));
+    public ResponseEntity<List<AccountForReturnDTO>> getAllAccountsForUser(@PathVariable long id) {
+        List<AccountForReturnDTO> dtoAccounts = accountRepository.findAllByUserId(id).stream()
+                .map(account -> modelMapper.map(account, AccountForReturnDTO.class))
+                .toList();
+        return ResponseEntity.ok(dtoAccounts);
     }
 
     @PostMapping("/addAccount")
-    public ResponseEntity<Account> addAccount(@RequestBody AccountCreateDTO accountDTO) {
-        Account account = accountValidation.validateAccountForCreation(accountDTO);
+    public ResponseEntity<AccountForReturnDTO> addAccount(@RequestBody AccountCreateDTO accountDTO) {
+        accountValidation.validateAccountForCreation(accountDTO);
+        Account account = accountService.setFields(accountDTO);
         accountRepository.save(account);
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
     }
 
     @Transactional
     @PutMapping("/updateAccount")
-    public ResponseEntity<Account> updateAccount(@RequestBody AccountCreateDTO accountDTO) {
+    public ResponseEntity<AccountForReturnDTO> updateAccount(@RequestBody AccountCreateDTO accountDTO) {
         Account account = accountValidation.validateAccountForUpdate(accountDTO);
         accountRepository.save(account);
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
     }
 
     @Transactional
     @PutMapping("/addMoneyToAccount")
-    public ResponseEntity<Account> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO) {
+    public ResponseEntity<AccountForReturnDTO> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO) {
         Account account = accountRepository.findById(accountDTO.getId())
                 .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
         accountValidation.validateMoneyAmount(accountDTO.getAmount());
         account.setBalance(account.getBalance() + accountDTO.getAmount());
         accountRepository.save(account);
-        return ResponseEntity.ok(account);
+        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
     }
 
     @GetMapping("/getAccount/{id}")
-    public ResponseEntity<Account> getAccount(@PathVariable String id) {
-        long accountId;
-        try {
-            accountId = Long.parseLong(id);
-        } catch (NumberFormatException e) {
-            throw new InvalidArgumentsException("Invalid id");
-        }
-        return ResponseEntity.ok(accountRepository.findById(accountId)
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id")));
+    public ResponseEntity<AccountForReturnDTO> getAccount(@PathVariable long id) {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
+
+        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
     }
 
     @DeleteMapping("/deleteAccount/{id}")
-    public ResponseEntity<MessageDTO> deleteAccount(@PathVariable String id) {
-        long accountId = accountValidation.validateId(id);
-        Account account = accountRepository.findById(accountId)
+    public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id) {
+        Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
         accountRepository.delete(account);
         MessageDTO messageDTO = new MessageDTO();
