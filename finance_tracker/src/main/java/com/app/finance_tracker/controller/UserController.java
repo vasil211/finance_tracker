@@ -52,7 +52,7 @@ public class UserController extends MasterControllerForExceptionHandlers {
             throw new InvalidArgumentsException("Invalid password");
         }
         user.setLastLogin(LocalDateTime.now());
-        userRepository.updateLastLoginForUser(LocalDateTime.now(), user.getId());
+        userRepository.save(user);
         UserWithoutPasswordDTO userWithoutPasswordDTO = modelMapper.map(user, UserWithoutPasswordDTO.class);
         return ResponseEntity.ok(userWithoutPasswordDTO);
     }

@@ -54,7 +54,7 @@ public class AccountController extends MasterControllerForExceptionHandlers {
     @PutMapping("/updateAccount")
     public ResponseEntity<Account> updateAccount(@RequestBody AccountCreateDTO accountDTO) {
         Account account = accountValidation.validateAccountForUpdate(accountDTO);
-        accountRepository.updateAccount( account.getName(), account.getCurrency().getId(),account.getId() );
+        accountRepository.save(account);
         return ResponseEntity.ok(account);
     }
 
@@ -65,7 +65,7 @@ public class AccountController extends MasterControllerForExceptionHandlers {
                 .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
         accountValidation.validateMoneyAmount(accountDTO.getAmount());
         account.setBalance(account.getBalance() + accountDTO.getAmount());
-        accountRepository.addMoney(account.getBalance(), account.getId());
+        accountRepository.save(account);
         return ResponseEntity.ok(account);
     }
 

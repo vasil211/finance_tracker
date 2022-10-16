@@ -12,12 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Modifying
-    @Query("Update User u set u.lastLogin = ?1 where u.id = ?2")
-    void updateLastLoginForUser(LocalDateTime lastLogin, long id);
-
     Optional<User> findByEmail(String email);
-
 
     Optional<User> findByUsername(String username);
 }
