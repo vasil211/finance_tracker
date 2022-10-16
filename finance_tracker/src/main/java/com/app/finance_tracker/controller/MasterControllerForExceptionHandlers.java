@@ -15,7 +15,7 @@ public abstract class MasterControllerForExceptionHandlers {
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    private ErrorDTO handleNotFoundException(Exception e) {
+    protected ErrorDTO handleNotFoundException(Exception e) {
         ErrorDTO errorDTO = new ErrorDTO();
         errorDTO.setMessage(e.getMessage());
         errorDTO.setStatus(HttpStatus.NOT_FOUND.value());
@@ -25,7 +25,7 @@ public abstract class MasterControllerForExceptionHandlers {
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    private ErrorDTO BadRequestException(Exception e) {
+    protected ErrorDTO BadRequestException(Exception e) {
         ErrorDTO errorDTO = new ErrorDTO();
         errorDTO.setMessage(e.getMessage());
         errorDTO.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -35,7 +35,7 @@ public abstract class MasterControllerForExceptionHandlers {
 
     @ExceptionHandler(InvalidArgumentsException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    private ErrorDTO InvalidArgumentsExcpetion(Exception e) {
+    protected ErrorDTO InvalidArgumentsException(Exception e) {
         ErrorDTO errorDTO = new ErrorDTO();
         errorDTO.setMessage(e.getMessage());
         errorDTO.setStatus(HttpStatus.NOT_ACCEPTABLE.value());

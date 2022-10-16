@@ -1,12 +1,15 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
+import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
+import com.app.finance_tracker.model.dto.AccountAddMoneyDTO;
 import com.app.finance_tracker.model.dto.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.AccountRepository;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,30 +32,63 @@ public class AccountController extends MasterControllerForExceptionHandlers {
     private ModelMapper modelMapper;
 
 
-
     @GetMapping("/getAllAccounts/{id}")
     public ResponseEntity<List<Account>> getAllAccountsForUser(@PathVariable String id) {
         long userId;
         try {
             userId = Long.parseLong(id);
         } catch (NumberFormatException e) {
-            throw new BadRequestException("Invalid id");
+            throw new InvalidArgumentsException("Invalid id");
         }
         return ResponseEntity.ok(accountRepository.findAllByUserId(userId));
     }
 
     @PostMapping("/addAccount")
     public ResponseEntity<Account> addAccount(@RequestBody AccountCreateDTO accountDTO) {
-        if(!accountValidation.validateName(accountDTO.getName())) {
-            throw new BadRequestException("Invalid name");
-        }
-        Account account = new Account();
-        account.setName(accountDTO.getName());
-        account.setUser(userRepository.findById(accountDTO.getUserId())
-                .orElseThrow(() -> new BadRequestException("Invalid user id")));
-        account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
-                .orElseThrow(() -> new BadRequestException("Invalid currency id")));
+        Account account = accountValidation.validateAccountForCreation(accountDTO);
         accountRepository.save(account);
         return ResponseEntity.ok(account);
+    }
+
+    @Transactional
+    @PutMapping("/updateAccount")
+    public ResponseEntity<Account> updateAccount(@RequestBody AccountCreateDTO accountDTO) {
+        Account account = accountValidation.validateAccountForUpdate(accountDTO);
+        accountRepository.updateAccount( account.getName(), account.getCurrency().getId(),account.getId() );
+        return ResponseEntity.ok(account);
+    }
+
+    @Transactional
+    @PutMapping("/addMoneyToAccount")
+    public ResponseEntity<Account> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO) {
+        Account account = accountRepository.findById(accountDTO.getId())
+                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
+        accountValidation.validateMoneyAmount(accountDTO.getAmount());
+        account.setBalance(account.getBalance() + accountDTO.getAmount());
+        accountRepository.addMoney(account.getBalance(), account.getId());
+        return ResponseEntity.ok(account);
+    }
+
+    @GetMapping("/getAccount/{id}")
+    public ResponseEntity<Account> getAccount(@PathVariable String id) {
+        long accountId;
+        try {
+            accountId = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            throw new InvalidArgumentsException("Invalid id");
+        }
+        return ResponseEntity.ok(accountRepository.findById(accountId)
+                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id")));
+    }
+
+    @DeleteMapping("/deleteAccount/{id}")
+    public ResponseEntity<MessageDTO> deleteAccount(@PathVariable String id) {
+        long accountId = accountValidation.validateId(id);
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
+        accountRepository.delete(account);
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessage("Account deleted successfully");
+        return ResponseEntity.status(200).body(messageDTO);
     }
 }

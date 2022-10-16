@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-public class BudgetController {
+public class BudgetController extends MasterControllerForExceptionHandlers {
 
     @Autowired
     private BudgetRepository budgetRepository;

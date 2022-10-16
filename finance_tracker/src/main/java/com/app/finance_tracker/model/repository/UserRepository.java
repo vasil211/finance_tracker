@@ -2,16 +2,23 @@ package com.app.finance_tracker.model.repository;
 
 import com.app.finance_tracker.model.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    @Modifying
+    @Query("Update User u set u.lastLogin = ?1 where u.id = ?2")
+    void updateLastLoginForUser(LocalDateTime lastLogin, long id);
+
     Optional<User> findByEmail(String email);
-    Optional<String> findEmailById(long id);
-    Optional<String> findUsernameById(long id);
+
+
     Optional<User> findByUsername(String username);
 }
 
