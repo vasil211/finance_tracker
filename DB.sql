@@ -96,6 +96,9 @@ CREATE TABLE scheduled_payments (
         REFERENCES accounts (id)
 );
 
-insert into currencies(abbreviation, full_name) values("BGN", "Bulgarian Lev")
+insert into currencies(abbreviation, full_name) values("BGN", "Bulgarian Lev");
+insert into currencies (full_name, abbreviation) values ("US dollar" , "USD");
+insert into icons (url) values ("D:\IT Talents\FinalProject\finance_tracker\finance_tracker\src\main\resources\ImagesForCategories\carIcon");
 
+insert into categories (name, icon_id) values ("car", 2);
 

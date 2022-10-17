@@ -23,6 +23,6 @@ public class AccountService {
         account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
                 .orElseThrow(() -> new InvalidArgumentsException("Invalid currency id")));
         return account;
-
     }
+
 }

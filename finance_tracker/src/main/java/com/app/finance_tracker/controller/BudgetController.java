@@ -3,6 +3,7 @@ package com.app.finance_tracker.controller;
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.dto.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.EditBudgetDto;
 import com.app.finance_tracker.model.entities.Budget;
@@ -11,14 +12,15 @@ import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.BudgetRepository;
 import com.app.finance_tracker.model.repository.CategoryRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
+import com.app.finance_tracker.model.utility.service.BudgetService;
 import com.app.finance_tracker.model.utility.validation.BudgetValidation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -32,13 +34,14 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
     private BudgetValidation budgetValidation;
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
-    private CategoryRepository categoryRepository;
+    private BudgetService budgetService;
     @Autowired
     private ModelMapper modelMapper;
 
     @PostMapping("/create_budget")
-    public ResponseEntity<Budget> createBudget(@RequestBody CreateBudgetDto budgetDto){
+    public ResponseEntity<BudgetReturnDto> createBudget(@RequestBody CreateBudgetDto budgetDto){
 
         if (!budgetValidation.validAmount(budgetDto.getAmount())){
             throw new InvalidArgumentsException("budget should be higher than 0");
@@ -46,21 +49,10 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
         if (!budgetValidation.validDate(budgetDto.getFromDate(),budgetDto.getToDate())){
             throw new InvalidArgumentsException("to date cant be after from date");
         }
-        User user = userRepository.getReferenceById(budgetDto.getUserId());
-        Category category = categoryRepository.getReferenceById(budgetDto.getCategoryId());
 
-        if (budgetRepository.findAll().stream().anyMatch(b -> b.getCategory().getId()==category.getId() && user.getId()==b.getUser().getId())){
-            throw new BadRequestException("You already have budget for that category.");
-        }
-
-        Budget budget = new Budget();
-        budget.setAmount(budgetDto.getAmount());
-        budget.setToDate(budgetDto.getToDate());
-        budget.setFromDate(budgetDto.getFromDate());
-        budget.setCategory(category);
-        budget.setUser(user);
+        Budget budget = this.budgetService.setFields(budgetDto);
         budgetRepository.save(budget);
-        return ResponseEntity.ok(budget);
+        return ResponseEntity.ok(modelMapper.map(budget, BudgetReturnDto.class));
     }
 
     @GetMapping("/get_all_budgets/{userId}")
@@ -74,11 +66,16 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
         return ResponseEntity.ok(budgets);
     }
 
-    public ResponseEntity<Budget> getBudgetById(@PathVariable long id ){
+    @GetMapping("/{userId}/budgets/{id}")
+    public ResponseEntity<BudgetReturnDto> getBudgetById(@PathVariable long userId, @PathVariable long id ){
+        if (!userRepository.existsById(userId))
+        {
+            throw new NotFoundException("User not found.");
+        }
         if (budgetRepository.findById(id).isEmpty()){
             throw new NotFoundException("budget not found!");
         }
-        return ResponseEntity.ok(budgetRepository.findById(id).get());
+        return ResponseEntity.ok(modelMapper.map(budgetRepository.findById(id).get(),BudgetReturnDto.class));
     }
 
     @PutMapping("/edit_budget_{id}")
@@ -88,14 +85,8 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
                 .findById(budgetDto.getId())
                 .orElseThrow(() -> new NotFoundException("No budget found with this id"));
 
-        Category wantedCategory = categoryRepository
-                .findById(budgetDto.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("category not found"));
+        budget = this.budgetService.editFields(budget,budgetDto);
 
-        budget.setAmount(budget.getAmount());
-        budget.setFromDate(budgetDto.getFromDate());
-        budget.setToDate(budgetDto.getToDate());
-        budget.setCategory(wantedCategory);
         budgetRepository.save(budget);
         return ResponseEntity.ok(budget);
     }

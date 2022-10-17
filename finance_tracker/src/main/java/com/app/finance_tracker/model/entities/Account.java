@@ -22,4 +22,7 @@ public class Account {
     @Column
     private double balance;
 
+    public void removeFromBalance(double amount) {
+        this.balance-= amount;
+    }
 }
