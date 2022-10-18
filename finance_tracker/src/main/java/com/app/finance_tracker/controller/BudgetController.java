@@ -42,28 +42,14 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
 
     @PostMapping("/create_budget")
     public ResponseEntity<BudgetReturnDto> createBudget(@RequestBody CreateBudgetDto budgetDto){
-
-        if (!budgetValidation.validAmount(budgetDto.getAmount())){
-            throw new InvalidArgumentsException("budget should be higher than 0");
-        }
-        if (!budgetValidation.validDate(budgetDto.getFromDate(),budgetDto.getToDate())){
-            throw new InvalidArgumentsException("to date cant be after from date");
-        }
-
-        Budget budget = this.budgetService.setFields(budgetDto);
-        budgetRepository.save(budget);
+        BudgetReturnDto budget = this.budgetService.createBudget(budgetDto);
         return ResponseEntity.ok(modelMapper.map(budget, BudgetReturnDto.class));
     }
 
     @GetMapping("/get_all_budgets/{userId}")
-    public ResponseEntity<List<Budget>> getAllBudgetsForUser(@PathVariable long userId){
-
-        if (userRepository.findById(userId).isEmpty()){
-            throw new NotFoundException("User not found!");
-        }
-
-        List<Budget> budgets = budgetRepository.findAll().stream().filter(budget -> budget.getUser().getId()== userId).collect(Collectors.toList());
-        return ResponseEntity.ok(budgets);
+    public ResponseEntity<List<BudgetReturnDto>> getAllBudgetsForUser(@PathVariable long userId){
+        List <BudgetReturnDto> list = budgetService.getAllBudgetsForId(userId);
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{userId}/budgets/{id}")
@@ -79,15 +65,8 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
     }
 
     @PutMapping("/edit_budget_{id}")
-    public ResponseEntity<Budget> editBudgetCategory( @RequestBody EditBudgetDto budgetDto){
-        //TODO VALIDATE budgetDto
-        Budget budget = budgetRepository
-                .findById(budgetDto.getId())
-                .orElseThrow(() -> new NotFoundException("No budget found with this id"));
-
-        budget = this.budgetService.editFields(budget,budgetDto);
-
-        budgetRepository.save(budget);
+    public ResponseEntity<BudgetReturnDto> editBudgetCategory( @RequestBody EditBudgetDto budgetDto,@PathVariable long id){
+        BudgetReturnDto budget = this.budgetService.editFields(id,budgetDto);
         return ResponseEntity.ok(budget);
     }
 

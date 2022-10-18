@@ -1,7 +1,9 @@
 package com.app.finance_tracker.model.utility.service;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
+import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.dto.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.EditBudgetDto;
 import com.app.finance_tracker.model.entities.Budget;
@@ -10,8 +12,13 @@ import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.BudgetRepository;
 import com.app.finance_tracker.model.repository.CategoryRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
+import com.app.finance_tracker.model.utility.validation.BudgetValidation;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class BudgetService {
@@ -21,8 +28,21 @@ public class BudgetService {
     private UserRepository userRepository;
 
     @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private BudgetValidation budgetValidation;
+    @Autowired
     private BudgetRepository budgetRepository;
-    public Budget editFields(Budget budget, EditBudgetDto budgetDto) {
+    public BudgetReturnDto editFields(long id, EditBudgetDto budgetDto) {
+        Budget budget = budgetRepository
+                .findById(budgetDto.getId())
+                .orElseThrow(() -> new NotFoundException("No budget found with this id"));
+        if (!budgetValidation.validAmount(budgetDto.getAmount())){
+            throw new InvalidArgumentsException("budget should be higher than 0");
+        }
+        if (!budgetValidation.validDate(budgetDto.getFromDate(),budgetDto.getToDate())){
+            throw new InvalidArgumentsException("to date cant be after from date");
+        }
 
         Category wantedCategory = categoryRepository
                 .findById(budgetDto.getCategoryId())
@@ -32,11 +52,19 @@ public class BudgetService {
         budget.setFromDate(budgetDto.getFromDate());
         budget.setToDate(budgetDto.getToDate());
         budget.setCategory(wantedCategory);
-
-        return budget;
+        budgetRepository.save(budget);
+        return modelMapper.map(budget,BudgetReturnDto.class);
     }
 
-    public Budget setFields(CreateBudgetDto budgetDto) {
+    public BudgetReturnDto createBudget(CreateBudgetDto budgetDto) {
+
+        if (!budgetValidation.validAmount(budgetDto.getAmount())){
+            throw new InvalidArgumentsException("budget should be higher than 0");
+        }
+        if (!budgetValidation.validDate(budgetDto.getFromDate(),budgetDto.getToDate())){
+            throw new InvalidArgumentsException("to date cant be after from date");
+        }
+
         User user = userRepository.findById(budgetDto.getUserId()).get();
         Category category = categoryRepository.findById(budgetDto.getCategoryId()).get();
 
@@ -49,6 +77,19 @@ public class BudgetService {
         budget.setToDate(budgetDto.getToDate());
         budget.setCategory(category);
         budget.setUser(user);
-        return budget;
+        budgetRepository.save(budget);
+        return modelMapper.map(budget,BudgetReturnDto.class);
+    }
+
+    public List<BudgetReturnDto> getAllBudgetsForId(long userId) {
+        if (userRepository.findById(userId).isEmpty()){
+            throw new NotFoundException("User not found!");
+        }
+        List<BudgetReturnDto> budgets = budgetRepository.findAll()
+                .stream()
+                .filter(budget -> budget.getUser().getId() == userId)
+                .map( budget -> modelMapper.map(budget,BudgetReturnDto.class))
+                .toList();
+        return budgets;
     }
 }
