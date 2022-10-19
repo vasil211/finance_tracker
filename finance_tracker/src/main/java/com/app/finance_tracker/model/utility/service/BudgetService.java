@@ -3,9 +3,9 @@ package com.app.finance_tracker.model.utility.service;
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
-import com.app.finance_tracker.model.dto.BudgetReturnDto;
-import com.app.finance_tracker.model.dto.CreateBudgetDto;
-import com.app.finance_tracker.model.dto.EditBudgetDto;
+import com.app.finance_tracker.model.dto.budgetDTO.BudgetReturnDto;
+import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
+import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
 import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.User;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class BudgetService {

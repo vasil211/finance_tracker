@@ -1,7 +1,7 @@
 package com.app.finance_tracker.model.utility.validation;
 
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.dto.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.repository.UserRepository;

@@ -1,14 +1,8 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
-import com.app.finance_tracker.model.dto.CreateTransactionDto;
-import com.app.finance_tracker.model.dto.TransactionReturnDto;
-import com.app.finance_tracker.model.entities.Account;
-import com.app.finance_tracker.model.entities.Category;
-import com.app.finance_tracker.model.entities.Transaction;
+import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
+import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
 import com.app.finance_tracker.model.repository.AccountRepository;
-import com.app.finance_tracker.model.repository.CategoryRepository;
 import com.app.finance_tracker.model.repository.TransactionRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.service.TransactionService;
@@ -18,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 public class TransactionController extends MasterControllerForExceptionHandlers{

@@ -1,9 +1,9 @@
 package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.dto.AccountAddMoneyDTO;
-import com.app.finance_tracker.model.dto.AccountCreateDTO;
-import com.app.finance_tracker.model.dto.AccountForReturnDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountAddMoneyDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.AccountRepository;

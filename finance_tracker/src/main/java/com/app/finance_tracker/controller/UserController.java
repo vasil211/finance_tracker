@@ -1,25 +1,20 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.dto.UserLoginDTO;
-import com.app.finance_tracker.model.dto.UserRegistrationDTO;
-import com.app.finance_tracker.model.dto.UserWithoutPasswordDTO;
+import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
+import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
+import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.validation.UserValidation;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class UserController extends MasterControllerForExceptionHandlers {

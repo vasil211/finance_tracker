@@ -1,10 +1,7 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.budgetDTO;
 
+import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.Category;
-import com.app.finance_tracker.model.entities.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 import java.util.Date;

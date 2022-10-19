@@ -2,11 +2,10 @@ package com.app.finance_tracker.model.utility.validation;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.dto.UserRegistrationDTO;
+import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
