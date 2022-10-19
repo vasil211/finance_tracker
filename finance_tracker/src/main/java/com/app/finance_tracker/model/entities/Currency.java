@@ -3,6 +3,8 @@ package com.app.finance_tracker.model.entities;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Entity
 @Table(name  = "currencies")
@@ -14,5 +16,8 @@ public class Currency {
     private String abbreviation;
     @Column
     private String full_name;
+
+    @OneToMany(mappedBy = "currency")
+    private List<Account> accounts;
 
 }
