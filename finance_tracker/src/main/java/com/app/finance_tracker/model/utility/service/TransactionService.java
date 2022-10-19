@@ -15,13 +15,14 @@ import com.app.finance_tracker.model.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
-@Component
+@Service
 public class TransactionService {
     @Autowired
     private CategoryRepository categoryRepository;

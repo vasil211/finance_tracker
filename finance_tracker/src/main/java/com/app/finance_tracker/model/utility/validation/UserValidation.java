@@ -67,10 +67,6 @@ public class UserValidation {
                 }
             });
         }
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
         return user;
     }
 

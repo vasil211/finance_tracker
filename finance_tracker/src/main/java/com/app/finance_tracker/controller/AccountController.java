@@ -5,6 +5,7 @@ import com.app.finance_tracker.model.dto.accountDTO.AccountAddMoneyDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.MessageDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.AccountRepository;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
@@ -15,77 +16,60 @@ import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Validated
 public class AccountController extends MasterControllerForExceptionHandlers {
 
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private CurrencyRepository currencyRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AccountValidation accountValidation;
-    @Autowired
-    private ModelMapper modelMapper;
     @Autowired
     private AccountService accountService;
 
 
-    @GetMapping("/getAllAccounts/{id}")
-    public ResponseEntity<List<AccountForReturnDTO>> getAllAccountsForUser(@PathVariable long id) {
-        List<AccountForReturnDTO> dtoAccounts = accountRepository.findAllByUserId(id).stream()
-                .map(account -> modelMapper.map(account, AccountForReturnDTO.class))
-                .toList();
-        return ResponseEntity.ok(dtoAccounts);
-    }
-
     @PostMapping("/addAccount")
     public ResponseEntity<AccountForReturnDTO> addAccount(@RequestBody AccountCreateDTO accountDTO) {
-        accountValidation.validateAccountForCreation(accountDTO);
-        Account account = accountService.setFields(accountDTO);
-        accountRepository.save(account);
-        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
+        // todo check if user is logged in
+        AccountForReturnDTO accountForReturnDTO = accountService.addAccount(accountDTO);
+        return ResponseEntity.ok(accountForReturnDTO);
     }
+
+    @GetMapping("/getAllAccounts/{id}")
+    public ResponseEntity<List<AccountForReturnDTO>> getAllAccountsForUser(@PathVariable long id) {
+        // todo check if user is logged in, and remove id from path
+        List<AccountForReturnDTO> accountsDTO = accountService.getAllAccountsForUser(id);
+        return ResponseEntity.ok(accountsDTO);
+    }
+
 
     @Transactional
     @PutMapping("/updateAccount")
-    public ResponseEntity<AccountForReturnDTO> updateAccount(@RequestBody AccountCreateDTO accountDTO) {
-        Account account = accountValidation.validateAccountForUpdate(accountDTO);
-        accountRepository.save(account);
-        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
+    public ResponseEntity<AccountForReturnDTO> updateAccount(@RequestBody AccountForUpdateDTO accountDTO) {
+        // todo check if user is logged in
+        AccountForReturnDTO account = accountService.updateAccount(accountDTO);
+        return ResponseEntity.ok(account);
     }
 
-    @Transactional
     @PutMapping("/addMoneyToAccount")
     public ResponseEntity<AccountForReturnDTO> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO) {
-        Account account = accountRepository.findById(accountDTO.getId())
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
-        accountValidation.validateMoneyAmount(accountDTO.getAmount());
-        account.setBalance(account.getBalance() + accountDTO.getAmount());
-        accountRepository.save(account);
-        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
+        // todo check if user is logged in
+        AccountForReturnDTO account = accountService.addMoneyToAccount(accountDTO);
+        return ResponseEntity.ok(account);
     }
 
     @GetMapping("/getAccount/{id}")
     public ResponseEntity<AccountForReturnDTO> getAccount(@PathVariable long id) {
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
-
-        return ResponseEntity.ok(modelMapper.map(account, AccountForReturnDTO.class));
+        // todo check if user is logged in and check if user is owner of account
+        AccountForReturnDTO account = accountService.getAccount(id);
+        return ResponseEntity.ok(account);
     }
 
     @DeleteMapping("/deleteAccount/{id}")
     public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id) {
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid account id"));
-        accountRepository.delete(account);
-        MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setMessage("Account deleted successfully");
-        return ResponseEntity.status(200).body(messageDTO);
+        // todo check if user is logged in and check if user is owner of account
+        MessageDTO message = accountService.deleteAccount(id);
+        return ResponseEntity.ok(message);
     }
 }

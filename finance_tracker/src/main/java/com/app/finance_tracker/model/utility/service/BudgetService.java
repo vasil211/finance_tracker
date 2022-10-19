@@ -16,10 +16,11 @@ import com.app.finance_tracker.model.utility.validation.BudgetValidation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Component
+@Service
 public class BudgetService {
     @Autowired
     private CategoryRepository categoryRepository;
