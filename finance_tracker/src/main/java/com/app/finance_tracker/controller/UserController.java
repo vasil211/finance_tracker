@@ -42,7 +42,6 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok("Logout successful");
     }
 
-
     @PutMapping("/updateProfile")
     public ResponseEntity<UserWithoutPasswordDTO> updateUser(@RequestBody UserRegistrationDTO userDTO, HttpServletRequest session) {
         checkIfLogged(session);

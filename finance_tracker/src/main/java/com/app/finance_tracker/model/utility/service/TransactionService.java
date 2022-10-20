@@ -63,8 +63,6 @@ public class TransactionService extends AbstractService{
 
     @Transactional
     public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id) {
-        //TODO Validate user
-        //check if session userid equals account userid. MAYBE THIS validation should be in controller. ASK KRASI
         if (!isValidAmount(transactionDto.getAmount())){
             throw new BadRequestException("money should be higher than 0");
         }

@@ -3,6 +3,7 @@ package com.app.finance_tracker.controller;
 import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
 import com.app.finance_tracker.model.utility.service.TransactionService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,27 +21,34 @@ public class TransactionController extends AbstractController {
     private ModelMapper modelMapper;
 
     @PostMapping("/accounts/{id}/create_transaction")
-    public ResponseEntity<TransactionReturnDto> createTransaction(@RequestBody CreateTransactionDto transactionDto, @PathVariable long id){
+    public ResponseEntity<TransactionReturnDto> createTransaction(@RequestBody CreateTransactionDto transactionDto,
+                                                                  @PathVariable long id, HttpServletRequest req){
+        checkIfLogged(req);
+        checkIfAccountBelongsToUser(id,req);
         TransactionReturnDto transaction = transactionService.createTransaction(transactionDto,id);
-        return new ResponseEntity<>(modelMapper.map(transaction, TransactionReturnDto.class), HttpStatus.CREATED);
+        return new ResponseEntity<>(transaction, HttpStatus.CREATED);
     }
 
     //transactions for user
-    @GetMapping("/{userId}/transactions")
-    public ResponseEntity<List<TransactionReturnDto>> getAllTransactions(@PathVariable long userId){
+    @GetMapping("/transactions")
+    public ResponseEntity<List<TransactionReturnDto>> getAllTransactions(HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
         List<TransactionReturnDto> transactions = transactionService.getAllByUserId(userId);
         return new ResponseEntity<>(transactions,HttpStatus.OK);
     }
 
     //transaction by id
-    @GetMapping("/{userId}/transactions/{id}")
-    public ResponseEntity<TransactionReturnDto> getTransactionById(@PathVariable long userId, @PathVariable long id){
+    @GetMapping("/transactions/{id}")
+    public ResponseEntity<TransactionReturnDto> getTransactionById(@PathVariable long id, HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
         TransactionReturnDto transaction = transactionService.getTransactionById(userId,id);
         return new ResponseEntity<>(modelMapper.map(transaction,TransactionReturnDto.class),HttpStatus.OK);
     }
     //Getting all transactions for account
-    @GetMapping("{userId}/accounts/{accountId}/transactions")
-    public ResponseEntity<List<TransactionReturnDto>> getAccountTransactions(@PathVariable long userId, @PathVariable long accountId){
+    @GetMapping("/accounts/{accountId}/transactions")
+    public ResponseEntity<List<TransactionReturnDto>> getAccountTransactions(@PathVariable long accountId, HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        checkIfAccountBelongsToUser(accountId,request);
         List<TransactionReturnDto> transactions =transactionService.getAllTransactionsForAccount(userId,accountId);
         return new ResponseEntity<>(transactions,HttpStatus.OK);
     }

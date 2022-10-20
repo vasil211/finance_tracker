@@ -5,15 +5,24 @@ import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
 import com.app.finance_tracker.model.dto.ErrorDTO;
+import com.app.finance_tracker.model.entities.Account;
+import com.app.finance_tracker.model.repository.AccountRepository;
+import com.app.finance_tracker.model.utility.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 
 public abstract class AbstractController {
+
+    @Autowired
+    private AccountService accountService;
 
     public static final String LOGGED = "LOGGED";
     public static final String USER_ID = "USER_ID";
@@ -81,7 +90,8 @@ public abstract class AbstractController {
     }
 
     protected void checkIfAccountBelongsToUser(long accountId, HttpServletRequest request){
-        if(accountId != (int) request.getSession().getAttribute(USER_ID)){
+        Account account = accountService.getAccountById(accountId);
+        if(account.getUser().getId() != (int) request.getSession().getAttribute(USER_ID)){
             throw new UnauthorizedException("You are not authorized to update this account");
         }
     }

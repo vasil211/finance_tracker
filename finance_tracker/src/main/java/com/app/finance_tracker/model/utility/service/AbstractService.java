@@ -46,7 +46,7 @@ public abstract class AbstractService {
         return user;
     }
 
-    protected Account getAccountById(long id) {
+    public Account getAccountById(long id) {
         Account account =accountRepository.findById(id).orElseThrow(() -> new NotFoundException("account not found!"));
         return account;
     }
