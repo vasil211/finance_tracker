@@ -7,8 +7,9 @@ import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class AccountService {
     @Autowired
     private UserRepository userRepository;

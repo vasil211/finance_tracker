@@ -33,4 +33,10 @@ public class Budget {
     @Column(name = "to_date")
     private Date toDate;
 
+    public void increaseAmount(double amount){
+        this.amount+=amount;
+    }
+    public void decreaseAmount(double amount){
+        this.amount-=amount;
+    }
 }

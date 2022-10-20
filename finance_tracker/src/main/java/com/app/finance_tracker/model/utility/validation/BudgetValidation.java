@@ -8,10 +8,6 @@ import java.util.Date;
 @Component
 public class BudgetValidation {
 
-    public boolean validAmount(double amount){
-        return amount>0;
-    }
-
     public boolean validDate(Date fromDate, Date toDate){
         return toDate.after(fromDate);
     }

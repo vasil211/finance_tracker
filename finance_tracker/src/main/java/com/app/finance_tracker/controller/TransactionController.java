@@ -25,12 +25,6 @@ import java.util.stream.Collectors;
 
 @RestController
 public class TransactionController extends MasterControllerForExceptionHandlers{
-    @Autowired
-    private TransactionRepository transactionRepository;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private TransactionService transactionService;

@@ -1,39 +1,22 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.dto.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.EditBudgetDto;
-import com.app.finance_tracker.model.entities.Budget;
-import com.app.finance_tracker.model.entities.Category;
-import com.app.finance_tracker.model.entities.User;
-import com.app.finance_tracker.model.repository.BudgetRepository;
-import com.app.finance_tracker.model.repository.CategoryRepository;
-import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.service.BudgetService;
-import com.app.finance_tracker.model.utility.validation.BudgetValidation;
+import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
 public class BudgetController extends MasterControllerForExceptionHandlers {
-
-    @Autowired
-    private BudgetRepository budgetRepository;
-
-    @Autowired
-    private BudgetValidation budgetValidation;
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private BudgetService budgetService;
@@ -54,20 +37,24 @@ public class BudgetController extends MasterControllerForExceptionHandlers {
 
     @GetMapping("/{userId}/budgets/{id}")
     public ResponseEntity<BudgetReturnDto> getBudgetById(@PathVariable long userId, @PathVariable long id ){
-        if (!userRepository.existsById(userId))
-        {
-            throw new NotFoundException("User not found.");
-        }
-        if (budgetRepository.findById(id).isEmpty()){
-            throw new NotFoundException("budget not found!");
-        }
-        return ResponseEntity.ok(modelMapper.map(budgetRepository.findById(id).get(),BudgetReturnDto.class));
+        BudgetReturnDto budget = budgetService.getBudgetById(userId,id);
+        return ResponseEntity.ok(budget);
     }
 
-    @PutMapping("/edit_budget_{id}")
+    @PutMapping("/edit_budget/{id}")
     public ResponseEntity<BudgetReturnDto> editBudgetCategory( @RequestBody EditBudgetDto budgetDto,@PathVariable long id){
         BudgetReturnDto budget = this.budgetService.editFields(id,budgetDto);
         return ResponseEntity.ok(budget);
     }
+    //ADD MONEY TO BUDGET BY ID
+
+    //ASK KRASI HOW TO PASS AMOUNT IN REQUEST
+    /*@PutMapping("/{userId}/budgets/add_money/{id}")
+    public ResponseEntity<BudgetReturnDto> addMoneyToBudget(@PathVariable long userId,@PathVariable long id){
+        //get userId from session when krasi explains how!
+        //int userId = (int) session.getAttribute("ID");
+        BudgetReturnDto result = budgetService.addMoneyToBudget(userId,id,amount);
+        return new ResponseEntity<>(result,HttpStatus.OK);
+    }*/
 
 }

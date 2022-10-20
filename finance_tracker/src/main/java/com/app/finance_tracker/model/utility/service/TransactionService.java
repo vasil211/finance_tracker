@@ -1,20 +1,20 @@
 package com.app.finance_tracker.model.utility.service;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
+import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
 import com.app.finance_tracker.model.dto.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.TransactionReturnDto;
 import com.app.finance_tracker.model.entities.Account;
+import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Transaction;
-import com.app.finance_tracker.model.repository.AccountRepository;
-import com.app.finance_tracker.model.repository.CategoryRepository;
-import com.app.finance_tracker.model.repository.TransactionRepository;
-import com.app.finance_tracker.model.repository.UserRepository;
+import com.app.finance_tracker.model.repository.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -22,21 +22,19 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class TransactionService {
+@Service
+public class TransactionService extends AbstractService{
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private TransactionRepository transactionRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
-
+    private BudgetRepository budgetRepository;
 
     private boolean validateCategory(long categoryId) {
         return categoryRepository.existsById(categoryId);
@@ -66,8 +64,20 @@ public class TransactionService {
 
     @Transactional
     public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id) {
+        //TODO Validate user
+        //check if session userid equals account userid. MAYBE THIS validation should be in controller. ASK KRASI
+        if (!isValidAmount(transactionDto.getAmount())){
+            throw new BadRequestException("money should be higher than 0");
+        }
 
-        Account account = accountRepository.findById(id).orElseThrow(() -> new NotFoundException("account not found!"));
+        Account account = getAccountById(id);
+        Budget budget = budgetRepository.findAllByUserId(account.getUser().getId())
+                .stream().filter(b->b.getCategory().getId()==transactionDto.getCategoryId())
+                .findFirst().orElseThrow(() -> new BadRequestException("You dont have budget for this category."));
+
+        if (!isBudgetBalanceEnough(transactionDto.getAmount(),budget.getAmount())){
+            throw new InvalidArgumentsException("not enough budget for this category");
+        }
 
         if (checkBalance(account,transactionDto.getAmount())){
             throw new BadRequestException("Not enough money. Please add money to the account to make this transaction");
@@ -75,16 +85,23 @@ public class TransactionService {
         Transaction transaction = setFields(transactionDto);
         transaction.setAccount(account);
         account.removeFromBalance(transaction.getAmount());
+        budget.decreaseAmount(transactionDto.getAmount());
         transactionRepository.save(transaction);
         accountRepository.save(account);
+        budgetRepository.save(budget);
         return modelMapper.map(transaction,TransactionReturnDto.class);
     }
+
+    private boolean isBudgetBalanceEnough(double amount, double budgetBalance) {
+        return budgetBalance>amount;
+    }
+
     public Transaction setFields(CreateTransactionDto transactionDto) {
 
         if (!validateCategory(transactionDto.getCategoryId())){
             throw new NotFoundException("Invalid category");
         }
-        Category category= categoryRepository.findById(transactionDto.getCategoryId()).get();
+        Category category= getCategoryById(transactionDto.getCategoryId());
 
         Transaction transaction = new Transaction();
         transaction.setAmount(transactionDto.getAmount());
@@ -102,7 +119,7 @@ public class TransactionService {
         if (!userRepository.existsById(userId)){
             throw new NotFoundException("user not found.");
         }
-        Transaction transaction = transactionRepository.findById(id).orElseThrow( ()-> new NotFoundException("transaction not found!"));
+        Transaction transaction = findTransactionById(id);
 
         if (transaction.getAccount().getUser().getId()!= userId){
             throw new UnauthorizedException("no access to this transaction");
