@@ -7,6 +7,7 @@ import com.app.finance_tracker.model.dto.accountDTO.AccountAddMoneyDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.AccountRepository;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
@@ -20,34 +21,28 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AccountService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private CurrencyRepository currencyRepository;
-    @Autowired
-    private AccountValidation accountValidation;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private AccountRepository accountRepository;
+public class AccountService extends AbstractService {
 
     public AccountForReturnDTO addAccount(AccountCreateDTO accountDTO) {
         accountValidation.validateAccountForCreation(accountDTO);
         Account account = new Account();
         account.setName(accountDTO.getName());
-        account.setUser(userRepository.findById(accountDTO.getUserId())
-                .orElseThrow(() -> new BadRequestException("User not found")));
-        account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
-                .orElseThrow(() -> new BadRequestException("Invalid currency")));
+        account.setUser(getUserById(accountDTO.getUserId()));
+        account.setCurrency(getCurrencyById(accountDTO.getCurrencyId()));
         accountRepository.save(account);
-        return modelMapper.map(account, AccountForReturnDTO.class);
+        AccountForReturnDTO accountForReturnDTO = modelMapper.map(account, AccountForReturnDTO.class);
+        accountForReturnDTO.setCurrency(modelMapper.map(account.getCurrency(), CurrencyForReturnDTO.class));
+        return accountForReturnDTO;
     }
 
     public List<AccountForReturnDTO> getAllAccountsForUser(long id) {
-        return accountRepository.findAllByUserId(id).stream()
-                .map(account -> modelMapper.map(account, AccountForReturnDTO.class))
-                .toList();
+        List<AccountForReturnDTO> accounts = accountRepository.findAllByUserId(id).stream()
+                .map(account -> {
+                    AccountForReturnDTO accountForReturnDTO = modelMapper.map(account, AccountForReturnDTO.class);
+                    accountForReturnDTO.setCurrency(modelMapper.map(account.getCurrency(), CurrencyForReturnDTO.class));
+                    return accountForReturnDTO;
+                }).toList();
+        return accounts;
     }
 
     public AccountForReturnDTO updateAccount(AccountForUpdateDTO accountDTO) {
@@ -83,4 +78,13 @@ public class AccountService {
         messageDTO.setMessage("Account deleted successfully");
         return messageDTO;
     }
+
+    public void checkIfAccountBelongsToUser(long postId, long userId) {
+        Account account = findById(postId);
+        if(account.getUser().getId() != userId) {
+            throw new InvalidArgumentsException("Account does not belong to user");
+        }
+    }
+
+
 }

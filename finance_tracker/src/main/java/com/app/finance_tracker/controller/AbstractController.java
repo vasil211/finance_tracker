@@ -5,14 +5,19 @@ import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
 import com.app.finance_tracker.model.dto.ErrorDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 
-public abstract class MasterControllerForExceptionHandlers {
+public abstract class AbstractController {
 
+    public static final String LOGGED = "LOGGED";
+    public static final String USER_ID = "USER_ID";
+    public static final String REMOTE_IP = "REMOTE_IP";
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -50,5 +55,34 @@ public abstract class MasterControllerForExceptionHandlers {
         errorDTO.setTime(LocalDateTime.now());
         errorDTO.setStatus(status.value());
         return errorDTO;
+    }
+
+    public void logUser(HttpServletRequest req, long id){
+        HttpSession session = req.getSession();
+        session.setAttribute(LOGGED, true);
+        session.setAttribute(USER_ID, id);
+        session.setAttribute(REMOTE_IP, req.getRemoteAddr());
+    }
+
+    public long checkIfLoggedAndReturnUserId(HttpServletRequest req){
+        checkIfLogged(req);
+        HttpSession session = req.getSession();
+        return (long) session.getAttribute(USER_ID);
+    }
+    public void checkIfLogged(HttpServletRequest req){
+        HttpSession session = req.getSession();
+        String ip = req.getRemoteAddr();
+        if( session.isNew() ||
+                session.getAttribute(LOGGED) == null ||
+                (!(boolean) session.getAttribute(LOGGED)) ||
+                !session.getAttribute(REMOTE_IP).equals(ip)){
+            throw new UnauthorizedException("You have to login!");
+        }
+    }
+
+    protected void checkIfAccountBelongsToUser(long accountId, HttpServletRequest request){
+        if(accountId != (int) request.getSession().getAttribute(USER_ID)){
+            throw new UnauthorizedException("You are not authorized to update this account");
+        }
     }
 }

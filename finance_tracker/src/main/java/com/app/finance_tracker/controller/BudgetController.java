@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class BudgetController extends MasterControllerForExceptionHandlers {
+public class BudgetController extends AbstractController {
 
     @Autowired
     private BudgetService budgetService;

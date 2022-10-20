@@ -3,11 +3,12 @@ package com.app.finance_tracker.model.utility.service;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.repository.*;
+import com.app.finance_tracker.model.utility.validation.AccountValidation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-public class AbstractService {
+public abstract class AbstractService {
     @Autowired
     protected UserRepository userRepository;
     @Autowired
@@ -18,10 +19,12 @@ public class AbstractService {
     protected TransactionRepository transactionRepository;
     @Autowired
     protected CategoryRepository categoryRepository;
-
+    @Autowired
+    protected CurrencyRepository currencyRepository;
+    @Autowired
+    protected AccountValidation accountValidation;
     @Autowired
     protected ScheduledPaymentRepository scheduledPaymentRepository;
-
     @Autowired
     protected ModelMapper modelMapper;
 
@@ -62,4 +65,13 @@ public class AbstractService {
         return amount>0;
     }
 
+    public Currency getCurrencyById(long id){
+        Currency currency = currencyRepository.findById(id).orElseThrow(()-> new NotFoundException("Currency not found"));
+        return currency;
+    }
+
+    protected Account findById(long postId) {
+        Account account = accountRepository.findById(postId).orElseThrow(() -> new NotFoundException("Account not found"));
+        return account;
+    }
 }

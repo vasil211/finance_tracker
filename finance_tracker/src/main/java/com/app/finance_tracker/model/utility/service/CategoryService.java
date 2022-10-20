@@ -14,11 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private ModelMapper modelMapper;
+public class CategoryService extends AbstractService {
 
 
     public List<CategoryForReturnDTO> getAllCategories() {
@@ -32,13 +28,10 @@ public class CategoryService {
         return categoriesForReturn;
     }
 
-    public CategoryForReturnDTO getCategoryById(long id) {
-        Optional<Category> categoryOptional = categoryRepository.findById(id);
-        if(categoryOptional.isEmpty()){
-            throw new BadRequestException("Invalid id");
-        }
-        CategoryForReturnDTO categoryForReturnDTO = modelMapper.map(categoryOptional.get(), CategoryForReturnDTO.class);
-        categoryForReturnDTO.setIconURL(categoryOptional.get().getIcon().getUrl());
+    public CategoryForReturnDTO getCategoryForReturnDTOById(long id) {
+        Category category = getCategoryById(id);
+        CategoryForReturnDTO categoryForReturnDTO = modelMapper.map(category, CategoryForReturnDTO.class);
+        categoryForReturnDTO.setIconURL(category.getIcon().getUrl());
         return categoryForReturnDTO;
     }
 

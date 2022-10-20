@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class ScheduledPaymentController extends MasterControllerForExceptionHandlers{
+public class ScheduledPaymentController extends AbstractController {
 
     @Autowired
     private ScheduledPaymentService scheduledPaymentService;

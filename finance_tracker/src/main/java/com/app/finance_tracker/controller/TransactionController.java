@@ -2,9 +2,6 @@ package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
-import com.app.finance_tracker.model.repository.AccountRepository;
-import com.app.finance_tracker.model.repository.TransactionRepository;
-import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.service.TransactionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class TransactionController extends MasterControllerForExceptionHandlers{
+public class TransactionController extends AbstractController {
 
     @Autowired
     private TransactionService transactionService;

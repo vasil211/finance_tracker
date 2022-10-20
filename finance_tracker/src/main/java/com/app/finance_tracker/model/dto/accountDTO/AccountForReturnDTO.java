@@ -1,5 +1,6 @@
 package com.app.finance_tracker.model.dto.accountDTO;
 
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.entities.User;
 import jakarta.persistence.Column;
@@ -13,6 +14,6 @@ import org.springframework.context.annotation.Bean;
 public class AccountForReturnDTO {
     private long id;
     private String name;
-    private Currency currency;
+    private CurrencyForReturnDTO currency;
     private double balance;
 }
