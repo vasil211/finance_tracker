@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.userDTO;
 
 import jakarta.persistence.Column;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.budgetDTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

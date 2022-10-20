@@ -1,7 +1,8 @@
 package com.app.finance_tracker.model.utility.validation;
 
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.dto.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;
+import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
@@ -26,16 +27,10 @@ public class AccountValidation {
         }
     }
 
-    public Account validateAccountForUpdate(AccountCreateDTO accountDTO) {
+    public void validateAccountForUpdate(AccountForUpdateDTO accountDTO) {
         if(!validateName(accountDTO.getName())) {
             throw new InvalidArgumentsException("Invalid name");
         }
-        Account account = new Account();
-        account.setName(accountDTO.getName());
-        account.setId(accountDTO.getId());
-        account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid currency id")));
-        return account;
     }
 
     public long validateId(String id) {

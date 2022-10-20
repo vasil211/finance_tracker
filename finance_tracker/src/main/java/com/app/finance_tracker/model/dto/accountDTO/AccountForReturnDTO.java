@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.accountDTO;
 
 import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.entities.User;

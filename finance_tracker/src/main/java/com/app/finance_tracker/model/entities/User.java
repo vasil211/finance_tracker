@@ -5,6 +5,7 @@ import lombok.Data;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -26,5 +27,9 @@ public class User {
     private String lastName;
     @Column
     private LocalDateTime lastLogin;
+    @OneToMany(mappedBy = "user")
+    private List<Account> accounts;
+    @OneToMany(mappedBy = "user")
+    private List<Budget> budgets;
 
 }

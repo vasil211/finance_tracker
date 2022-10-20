@@ -7,6 +7,9 @@ import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
 import com.app.finance_tracker.model.dto.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.EditBudgetDto;
+import com.app.finance_tracker.model.dto.budgetDTO.BudgetReturnDto;
+import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
+import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
 import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.User;
@@ -20,10 +23,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class BudgetService extends AbstractService{
+public class BudgetService {
+    @Autowired
+    private CategoryRepository categoryRepository;
     @Autowired
     private UserRepository userRepository;
 

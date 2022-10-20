@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.userDTO;
 
 import lombok.Data;
 

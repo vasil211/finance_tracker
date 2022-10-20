@@ -4,8 +4,8 @@ import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
-import com.app.finance_tracker.model.dto.CreateTransactionDto;
-import com.app.finance_tracker.model.dto.TransactionReturnDto;
+import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
+import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
@@ -20,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService extends AbstractService{
+public class TransactionService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
