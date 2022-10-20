@@ -1,25 +1,15 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.dto.BudgetReturnDto;
-import com.app.finance_tracker.model.dto.CreateBudgetDto;
-import com.app.finance_tracker.model.dto.EditBudgetDto;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.dto.budgetDTO.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
-import com.app.finance_tracker.model.repository.BudgetRepository;
-import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.service.BudgetService;
-import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.GsonJsonParser;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @RestController
 public class BudgetController extends MasterControllerForExceptionHandlers {

@@ -3,12 +3,11 @@ package com.app.finance_tracker.model.utility.service;
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
-import com.app.finance_tracker.model.dto.ScheduledPaymentCreateDto;
-import com.app.finance_tracker.model.dto.ScheduledPaymentResponseDto;
+import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentCreateDto;
+import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.ScheduledPayment;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;

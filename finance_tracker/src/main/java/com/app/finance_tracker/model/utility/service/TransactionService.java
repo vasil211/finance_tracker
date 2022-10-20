@@ -23,7 +23,6 @@ import java.util.List;
 
 @Service
 public class TransactionService extends AbstractService{
-public class TransactionService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired

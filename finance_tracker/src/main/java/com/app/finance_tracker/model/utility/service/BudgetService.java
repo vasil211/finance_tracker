@@ -4,9 +4,6 @@ import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
-import com.app.finance_tracker.model.dto.BudgetReturnDto;
-import com.app.finance_tracker.model.dto.CreateBudgetDto;
-import com.app.finance_tracker.model.dto.EditBudgetDto;
 import com.app.finance_tracker.model.dto.budgetDTO.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
@@ -14,21 +11,15 @@ import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.BudgetRepository;
-import com.app.finance_tracker.model.repository.CategoryRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
 import com.app.finance_tracker.model.utility.validation.BudgetValidation;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class BudgetService extends AbstractService{
-public class BudgetService {
-    @Autowired
-    private CategoryRepository categoryRepository;
     @Autowired
     private UserRepository userRepository;
 

@@ -1,6 +1,7 @@
-package com.app.finance_tracker.model.dto;
+package com.app.finance_tracker.model.dto.scheduledpaymentDTO;
 
 
+import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.entities.Category;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;

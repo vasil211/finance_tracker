@@ -1,6 +1,6 @@
 package com.app.finance_tracker.model.repository;
 
-import com.app.finance_tracker.model.dto.ScheduledPaymentResponseDto;
+import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
 import com.app.finance_tracker.model.entities.ScheduledPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
