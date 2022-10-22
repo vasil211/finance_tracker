@@ -20,7 +20,7 @@ public class TransactionController extends AbstractController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @PostMapping("/accounts/{id}/create_transaction")
+    @PostMapping("/transactions")
     public ResponseEntity<TransactionReturnDto> createTransaction(@RequestBody CreateTransactionDto transactionDto,
                                                                   @PathVariable long id, HttpServletRequest req){
         checkIfLogged(req);

@@ -17,14 +17,14 @@ public class BudgetController extends AbstractController {
     @Autowired
     private BudgetService budgetService;
 
-    @PostMapping("/create_budget")
+    @PostMapping("/budgets")
     public ResponseEntity<BudgetReturnDto> createBudget(@RequestBody CreateBudgetDto budgetDto, HttpServletRequest request){
         checkIfLogged(request);
         BudgetReturnDto budget = this.budgetService.createBudget(budgetDto);
         return ResponseEntity.ok(budget);
     }
 
-    @GetMapping("/get_all_budgets")
+    @GetMapping("/budgets")
     public ResponseEntity<List<BudgetReturnDto>> getAllBudgetsForUser(HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
         List <BudgetReturnDto> list = budgetService.getAllBudgetsForId(userId);
@@ -38,7 +38,7 @@ public class BudgetController extends AbstractController {
         return ResponseEntity.ok(budget);
     }
 
-    @PutMapping("/edit_budget/{id}")
+    @PutMapping("/budgets")
     public ResponseEntity<BudgetReturnDto> editBudgetCategory( @RequestBody EditBudgetDto budgetDto,
                                                                @PathVariable long id,HttpServletRequest request){
         checkIfLogged(request);
