@@ -8,6 +8,7 @@ import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Icon;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -123,10 +124,12 @@ public class CategoryService extends AbstractService {
         }
     }
 
+    @Transactional
     public MessageDTO deleteCategory(long id, long userId) {
         checkIfCategoryBelongsToUser(id,userId);
         Category category = getCategoryById(id);
         categoryRepository.delete(category);
+        iconService.deleteIcon(category.getIcon().getId());
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage("Category deleted successfully");
         return messageDTO;

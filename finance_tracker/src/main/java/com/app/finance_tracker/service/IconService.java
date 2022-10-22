@@ -1,5 +1,6 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.entities.Icon;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
@@ -24,6 +25,13 @@ public class IconService extends AbstractService {
         icon.setUrl(name);
         iconRepository.save(icon);
         return icon;
+    }
+
+    public void deleteIcon(long id) {
+        Icon icon = iconRepository.findById(id).orElseThrow(() -> new NotFoundException("Icon not found"));
+        File f = new File("categories" + File.separator + icon.getUrl());
+        f.delete();
+        iconRepository.delete(icon);
     }
 }
 
