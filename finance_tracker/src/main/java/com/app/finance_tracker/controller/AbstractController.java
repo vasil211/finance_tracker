@@ -6,16 +6,13 @@ import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
 import com.app.finance_tracker.model.dto.ErrorDTO;
 import com.app.finance_tracker.model.entities.Account;
-import com.app.finance_tracker.model.repository.AccountRepository;
-import com.app.finance_tracker.model.utility.service.AccountService;
+import com.app.finance_tracker.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 

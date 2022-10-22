@@ -2,7 +2,7 @@ package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
-import com.app.finance_tracker.model.utility.service.TransactionService;
+import com.app.finance_tracker.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

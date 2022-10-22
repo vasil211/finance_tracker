@@ -42,13 +42,26 @@ CREATE TABLE categories (
     FOREIGN KEY (icon_id)
         REFERENCES icons (id)
 );
+CREATE TABLE categories_for_user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(25) NOT NULL,
+    icon_id INT NOT NULL,
+    user_id int not null,
+    FOREIGN KEY (icon_id)
+        REFERENCES icons (id),
+         FOREIGN KEY (user_id)
+        REFERENCES users (id)
+);
 CREATE TABLE budgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DOUBLE NOT NULL,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
+    currency_id int not null,
     from_date DATETIME NOT NULL,
     to_date DATETIME NOT NULL,
+    FOREIGN KEY (currency_id)
+        REFERENCES currencies (id),
     FOREIGN KEY (user_id)
         REFERENCES users (id),
     FOREIGN KEY (category_id)
@@ -97,8 +110,7 @@ CREATE TABLE scheduled_payments (
 );
 
 insert into currencies(abbreviation, full_name) values("BGN", "Bulgarian Lev");
-insert into currencies (full_name, abbreviation) values ("US dollar" , "USD");
-insert into icons (url) values ("D:\IT Talents\FinalProject\finance_tracker\finance_tracker\src\main\resources\ImagesForCategories\carIcon");
+insert into icons(url) values("istock-500593292-1bb78a1e79717b7a2ac14dc9edf99cc71723d261-s1100-c50.jpg");
+insert into categories(name,icon_id) values("plant",1);
 
-insert into categories (name, icon_id) values ("car", 2);
 

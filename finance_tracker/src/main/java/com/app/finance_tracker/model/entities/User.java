@@ -31,5 +31,7 @@ public class User {
     private List<Account> accounts;
     @OneToMany(mappedBy = "user")
     private List<Budget> budgets;
+    @OneToMany(mappedBy = "user")
+    private List<CategoryFromUser> categoryFromUsers;
 
 }

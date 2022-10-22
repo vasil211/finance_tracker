@@ -5,9 +5,8 @@ import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
-import com.app.finance_tracker.model.utility.service.UserService;
+import com.app.finance_tracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +35,13 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
-    @PostMapping("/logout")
+    @PostMapping("/users/logout")
     public ResponseEntity<String> logoutUser(HttpServletRequest request) {
         request.getSession().invalidate();
         return ResponseEntity.ok("Logout successful");
     }
 
-    @PutMapping("/updateProfile")
+    @PutMapping("/users")
     public ResponseEntity<UserWithoutPasswordDTO> updateUser(@RequestBody UserRegistrationDTO userDTO, HttpServletRequest session) {
         checkIfLogged(session);
         if (userDTO.getId() != (int) session.getAttribute(USER_ID)) {
@@ -59,6 +58,8 @@ public class UserController extends AbstractController {
         List<UserWithoutPasswordDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+    // todo: return user by username
+    // todo: return user by first and last name
 
 //    @Scheduled(cron = "0 0 9 * * 1")
 //    @Scheduled(fixedRate = 5000)

@@ -3,7 +3,7 @@ package com.app.finance_tracker.controller;
 import com.app.finance_tracker.model.dto.budgetDTO.BudgetReturnDto;
 import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
-import com.app.finance_tracker.model.utility.service.BudgetService;
+import com.app.finance_tracker.service.BudgetService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

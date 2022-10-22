@@ -2,7 +2,7 @@ package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentCreateDto;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
-import com.app.finance_tracker.model.utility.service.ScheduledPaymentService;
+import com.app.finance_tracker.service.ScheduledPaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

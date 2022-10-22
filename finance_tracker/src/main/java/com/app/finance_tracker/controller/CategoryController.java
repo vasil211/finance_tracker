@@ -1,7 +1,7 @@
 package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
-import com.app.finance_tracker.model.utility.service.CategoryService;
+import com.app.finance_tracker.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -34,5 +34,7 @@ public class CategoryController extends AbstractController {
         CategoryForReturnDTO category = categoryService.getCategoryByName(name);
         return ResponseEntity.ok(category);
     }
+
+
 
 }

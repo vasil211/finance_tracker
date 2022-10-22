@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.utility.service;
+package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
@@ -9,13 +9,6 @@ import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.entities.Account;
-import com.app.finance_tracker.model.repository.AccountRepository;
-import com.app.finance_tracker.model.repository.CurrencyRepository;
-import com.app.finance_tracker.model.repository.UserRepository;
-import com.app.finance_tracker.model.utility.validation.AccountValidation;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

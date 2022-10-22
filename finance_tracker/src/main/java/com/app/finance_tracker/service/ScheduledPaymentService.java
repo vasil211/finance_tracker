@@ -1,4 +1,4 @@
-package com.app.finance_tracker.model.utility.service;
+package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
