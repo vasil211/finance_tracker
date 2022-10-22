@@ -4,11 +4,16 @@ import com.app.finance_tracker.model.Exeptionls.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
+import com.app.finance_tracker.model.utility.validation.UserValidation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
+
 public abstract class AbstractService {
+    @Autowired
+    protected IconService iconService;
     @Autowired
     protected UserRepository userRepository;
     @Autowired
@@ -24,9 +29,15 @@ public abstract class AbstractService {
     @Autowired
     protected AccountValidation accountValidation;
     @Autowired
+    protected UserValidation userValidation;
+    @Autowired
     protected ScheduledPaymentRepository scheduledPaymentRepository;
     @Autowired
     protected ModelMapper modelMapper;
+    @Autowired
+    protected  IconRepository iconRepository;
+
+
 
     protected Budget findBudgetById(long id){
         Budget budget = budgetRepository
@@ -40,10 +51,6 @@ public abstract class AbstractService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("category not found"));
         return category;
-    }
-    protected User getUserById(long id){
-        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        return user;
     }
 
     public Account getAccountById(long id) {
@@ -70,8 +77,13 @@ public abstract class AbstractService {
         return currency;
     }
 
-    protected Account findById(long postId) {
-        Account account = accountRepository.findById(postId).orElseThrow(() -> new NotFoundException("Account not found"));
-        return account;
+    public Icon getIconById(long icon_id) {
+        Icon icon = iconRepository.findById(icon_id).orElseThrow(() -> new NotFoundException("Icon not found"));
+        return icon;
+    }
+
+    public User getUserById(long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
+        return user;
     }
 }

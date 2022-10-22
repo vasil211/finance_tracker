@@ -21,8 +21,7 @@ public class AccountController extends AbstractController {
 
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private UserService userService;
+
 
     @PostMapping("/account")
     public ResponseEntity<AccountForReturnDTO> addAccount(@RequestBody AccountCreateDTO accountDTO, HttpServletRequest request) {

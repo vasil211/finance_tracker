@@ -39,25 +39,18 @@ CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(25) NOT NULL,
     icon_id INT NOT NULL,
-    FOREIGN KEY (icon_id)
-        REFERENCES icons (id)
-);
-CREATE TABLE categories_for_user (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(25) NOT NULL,
-    icon_id INT NOT NULL,
-    user_id int not null,
+    user_id int default null,
     FOREIGN KEY (icon_id)
         REFERENCES icons (id),
-         FOREIGN KEY (user_id)
-        REFERENCES users (id)
+        UNIQUE KEY unique_key (name , user_id)
 );
+
 CREATE TABLE budgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DOUBLE NOT NULL,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
-    currency_id int not null,
+    currency_id INT NOT NULL,
     from_date DATETIME NOT NULL,
     to_date DATETIME NOT NULL,
     FOREIGN KEY (currency_id)

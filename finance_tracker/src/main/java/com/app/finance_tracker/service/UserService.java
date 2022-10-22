@@ -16,16 +16,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService extends AbstractService {
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserValidation userValidation;
-    @Autowired
     private PasswordEncoder encoder;
-    @Autowired
-    private ModelMapper modelMapper;
 
     public User loginUser(UserLoginDTO userDTO) {
         if(!userValidation.validateUsername(userDTO.getUsername())){

@@ -73,7 +73,7 @@ public class AccountService extends AbstractService {
     }
 
     public void checkIfAccountBelongsToUser(long postId, long userId) {
-        Account account = findById(postId);
+        Account account = getAccountById(postId);
         if(account.getUser().getId() != userId) {
             throw new InvalidArgumentsException("Account does not belong to user");
         }
