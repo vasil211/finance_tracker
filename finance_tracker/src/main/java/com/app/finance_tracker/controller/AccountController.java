@@ -63,9 +63,8 @@ public class AccountController extends AbstractController {
 
     @DeleteMapping("/account/{id}")
     public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id, HttpServletRequest request) {
-        checkIfLogged(request);
-        accountService.checkIfAccountBelongsToUser(id, Long.parseLong(request.getParameter(USER_ID)));
-        MessageDTO message = accountService.deleteAccount(id);
+        long userId = checkIfLoggedAndReturnUserId(request);
+        MessageDTO message = accountService.deleteAccount(id, userId);
         return ResponseEntity.ok(message);
     }
 

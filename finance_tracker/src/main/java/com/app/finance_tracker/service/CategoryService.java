@@ -2,8 +2,10 @@ package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.Exeptionls.BadRequestException;
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForDaoDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
+import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Icon;
 import org.springframework.stereotype.Service;
@@ -119,5 +121,14 @@ public class CategoryService extends AbstractService {
         if (categoryRepository.findByIdAndUserId(categoryId, userId).isEmpty()) {
             throw new BadRequestException("Category does not belong to user");
         }
+    }
+
+    public MessageDTO deleteCategory(long id, long userId) {
+        checkIfCategoryBelongsToUser(id,userId);
+        Category category = getCategoryById(id);
+        categoryRepository.delete(category);
+        MessageDTO messageDTO = new MessageDTO();
+        messageDTO.setMessage("Category deleted successfully");
+        return messageDTO;
     }
 }

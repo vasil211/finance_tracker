@@ -63,9 +63,9 @@ public class AccountService extends AbstractService {
         return modelMapper.map(account, AccountForReturnDTO.class);
     }
 
-    public MessageDTO deleteAccount(long id) {
-        Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Invalid account id"));
+    public MessageDTO deleteAccount(long id, long userId) {
+        checkIfAccountBelongsToUser(id,userId);
+        Account account = getAccountById(id);
         accountRepository.delete(account);
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage("Account deleted successfully");

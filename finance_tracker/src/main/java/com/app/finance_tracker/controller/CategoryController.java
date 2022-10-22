@@ -1,6 +1,7 @@
 package com.app.finance_tracker.controller;
 
 import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
 import com.app.finance_tracker.service.CategoryService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,5 +70,12 @@ public class CategoryController extends AbstractController {
         }
         resp.setContentType(Files.probeContentType(f.toPath()));
         Files.copy(f.toPath(), resp.getOutputStream());
+    }
+
+    @DeleteMapping("/category/{id}")
+    public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id, HttpServletRequest request) {
+        long userId = checkIfLoggedAndReturnUserId(request);
+        MessageDTO message = categoryService.deleteCategory(id, userId);
+        return ResponseEntity.ok(message);
     }
 }
