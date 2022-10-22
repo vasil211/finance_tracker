@@ -64,6 +64,7 @@ public class AccountService extends AbstractService {
     }
 
     public MessageDTO deleteAccount(long id, long userId) {
+        // todo before delete, delete transfers,transactions and scheduled payments
         checkIfAccountBelongsToUser(id,userId);
         Account account = getAccountById(id);
         accountRepository.delete(account);
