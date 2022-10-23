@@ -17,6 +17,6 @@ public class Category {
     @JoinColumn(name="icon_id", nullable=false)
     private Icon icon;
     @ManyToOne
-    @JoinColumn(name="user_id", nullable=false)
+    @JoinColumn(name="user_id")
     private User user;
 }

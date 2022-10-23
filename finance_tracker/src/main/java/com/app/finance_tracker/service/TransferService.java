@@ -28,7 +28,6 @@ public class TransferService extends AbstractService {
         }
         // check if currency is valid
         Currency currency = getCurrencyById(transferDTO.getCurrencyId());
-
         // check if there's enough money on account
         // todo check if currency is same, and exchange if not
         if(sender.getBalance() < transferDTO.getAmount()){
