@@ -28,6 +28,10 @@ public class Budget {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "currency_id", nullable = false)
+    private Currency currency;
+
     @Column(name = "from_date")
     private Date fromDate;
     @Column(name = "to_date")

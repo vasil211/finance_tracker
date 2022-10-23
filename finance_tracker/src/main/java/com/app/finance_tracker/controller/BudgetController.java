@@ -38,12 +38,19 @@ public class BudgetController extends AbstractController {
         return ResponseEntity.ok(budget);
     }
 
-    @PutMapping("/budgets")
-    public ResponseEntity<BudgetReturnDto> editBudgetCategory( @RequestBody EditBudgetDto budgetDto,
+    @PutMapping("/budgets/{id}")
+    public ResponseEntity<BudgetReturnDto> editBudget( @RequestBody EditBudgetDto budgetDto,
                                                                @PathVariable long id,HttpServletRequest request){
         checkIfLogged(request);
         BudgetReturnDto budget = this.budgetService.editBudget(id,budgetDto);
         return ResponseEntity.ok(budget);
+    }
+
+    @DeleteMapping("/budgets/{id}")
+    public ResponseEntity<String> deleteBudget(@PathVariable long id, HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        budgetService.deleteBudget(userId,id);
+        return ResponseEntity.ok("Budget deleted successfully");
     }
 
     //ADD MONEY TO BUDGET BY ID

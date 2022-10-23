@@ -15,4 +15,5 @@ public class EditBudgetDto {
     private Date toDate;
     private long userId;
     private long categoryId;
+    private long currencyId;
 }

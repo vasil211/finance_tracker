@@ -40,7 +40,6 @@ public abstract class AbstractService {
     protected TransferRepository transferRepository;
 
 
-
     protected Budget findBudgetById(long id){
         Budget budget = budgetRepository
                 .findById(id)
