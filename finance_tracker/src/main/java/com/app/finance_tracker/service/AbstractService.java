@@ -36,6 +36,8 @@ public abstract class AbstractService {
     protected ModelMapper modelMapper;
     @Autowired
     protected  IconRepository iconRepository;
+    @Autowired
+    protected TransferRepository transferRepository;
 
 
 
