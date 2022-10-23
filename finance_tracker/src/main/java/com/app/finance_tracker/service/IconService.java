@@ -1,6 +1,6 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.Icon;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;

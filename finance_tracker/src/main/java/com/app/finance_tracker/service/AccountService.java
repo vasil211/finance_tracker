@@ -1,7 +1,7 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
+import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountAddMoneyDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountCreateDTO;

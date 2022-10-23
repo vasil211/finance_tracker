@@ -1,9 +1,9 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
-import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
+import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
+import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.ErrorDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.service.AccountService;

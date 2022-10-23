@@ -1,11 +1,9 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.dto.MessageDTO;
-import com.app.finance_tracker.model.dto.categoryDTO.CategoryForDaoDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
-import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Icon;
 import jakarta.transaction.Transactional;
@@ -13,10 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryService extends AbstractService {

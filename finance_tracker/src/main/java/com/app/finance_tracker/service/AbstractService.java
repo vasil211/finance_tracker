@@ -1,15 +1,14 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
+import com.app.finance_tracker.model.utility.validation.TransferValidation;
 import com.app.finance_tracker.model.utility.validation.UserValidation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.sql.DataSource;
 
 public abstract class AbstractService {
     @Autowired
@@ -38,6 +37,8 @@ public abstract class AbstractService {
     protected  IconRepository iconRepository;
     @Autowired
     protected TransferRepository transferRepository;
+    @Autowired
+    protected TransferValidation transferValidation;
 
 
     protected Budget findBudgetById(long id){
@@ -87,4 +88,9 @@ public abstract class AbstractService {
         User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
         return user;
     }
+
+    public Transfer findTransferById(long id) {
+        return transferRepository.findById(id).orElseThrow(() -> new NotFoundException("Transfer not found"));
+    }
+
 }

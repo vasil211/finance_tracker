@@ -1,6 +1,6 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
 import com.app.finance_tracker.service.CategoryService;

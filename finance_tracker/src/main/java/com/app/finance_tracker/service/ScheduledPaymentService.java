@@ -1,8 +1,8 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.BadRequestException;
-import com.app.finance_tracker.model.Exeptionls.NotFoundException;
-import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
+import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
+import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentCreateDto;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
 import com.app.finance_tracker.model.entities.Account;

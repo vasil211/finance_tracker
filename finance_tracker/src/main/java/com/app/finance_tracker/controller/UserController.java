@@ -1,6 +1,6 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.Exeptionls.UnauthorizedException;
+import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;

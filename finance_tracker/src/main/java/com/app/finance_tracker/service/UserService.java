@@ -1,13 +1,10 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.Exeptionls.InvalidArgumentsException;
+import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
-import com.app.finance_tracker.model.repository.UserRepository;
-import com.app.finance_tracker.model.utility.validation.UserValidation;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

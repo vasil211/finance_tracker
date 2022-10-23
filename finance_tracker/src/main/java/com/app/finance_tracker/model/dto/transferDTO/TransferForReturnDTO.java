@@ -11,5 +11,6 @@ public class TransferForReturnDTO {
     private double amount;
     private CurrencyForTransferDTO currency;
     private UserForTransferDTO receiver;
+    private UserForTransferDTO sender;
     private LocalDateTime date;
 }
