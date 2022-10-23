@@ -41,4 +41,20 @@ public class ScheduledPaymentController extends AbstractController {
         List<ScheduledPaymentResponseDto> list = scheduledPaymentService.getAllScheduledPaymentsByAccId(id);
         return new ResponseEntity<>(list,HttpStatus.OK);
     }
+
+    @DeleteMapping("/accounts/{accountId}/scheduled_payments/{id}")
+    public ResponseEntity<String> deleteSchedulePayment(@PathVariable long accountId, @PathVariable long id, HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        checkIfAccountBelongsToUser(accountId,request);
+        scheduledPaymentService.deleteScheduledPayment(accountId,id);
+        return ResponseEntity.ok("Scheduled payment with id " + id +" deleted");
+    }
+    @PutMapping("/accounts/{accountId}/scheduled_payments/{id}")
+    public ResponseEntity<ScheduledPaymentResponseDto> editPayment(@RequestBody ScheduledPaymentCreateDto scheduledPaymentEditDto, HttpServletRequest request,
+                                                                   @PathVariable long accountId, @PathVariable long id){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        checkIfAccountBelongsToUser(accountId,request);
+        ScheduledPaymentResponseDto dto = scheduledPaymentService.editPayment(accountId,id,scheduledPaymentEditDto);
+        return new ResponseEntity<>(dto,HttpStatus.OK);
+    }
 }

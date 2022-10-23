@@ -9,6 +9,7 @@ import com.app.finance_tracker.model.dto.budgetDTO.CreateBudgetDto;
 import com.app.finance_tracker.model.dto.budgetDTO.EditBudgetDto;
 import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
+import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.repository.BudgetRepository;
 import com.app.finance_tracker.model.repository.UserRepository;
@@ -39,12 +40,17 @@ public class BudgetService extends AbstractService{
         {
             throw new UnauthorizedException("No access to this.");
         }
-        Category wantedCategory = getCategoryById(budgetDto.getCategoryId());
-
+        if (budget.getCategory().getId() != budgetDto.getCategoryId()) {
+            Category wantedCategory = getCategoryById(budgetDto.getCategoryId());
+            budget.setCategory(wantedCategory);
+        }
+        if (budget.getCategory().getId() != budgetDto.getCurrencyId()){
+            Currency currency = getCurrencyById(budgetDto.getCurrencyId());
+            budget.setCurrency(currency);
+        }
         budget.setAmount(budget.getAmount());
         budget.setFromDate(budgetDto.getFromDate());
         budget.setToDate(budgetDto.getToDate());
-        budget.setCategory(wantedCategory);
         budgetRepository.save(budget);
         return modelMapper.map(budget,BudgetReturnDto.class);
     }
@@ -60,7 +66,7 @@ public class BudgetService extends AbstractService{
 
         User user = getUserById(budgetDto.getUserId());
         Category category =getCategoryById(budgetDto.getCategoryId());
-
+        Currency currency= getCurrencyById(budgetDto.getCurrencyId());
         if (budgetRepository.findAll().stream().anyMatch(b -> b.getCategory().getId()==category.getId() && user.getId()==b.getUser().getId())){
             throw new BadRequestException("You already have budget for that category.");
         }
@@ -70,6 +76,7 @@ public class BudgetService extends AbstractService{
         budget.setToDate(budgetDto.getToDate());
         budget.setCategory(category);
         budget.setUser(user);
+        budget.setCurrency(currency);
         budgetRepository.save(budget);
         return modelMapper.map(budget,BudgetReturnDto.class);
     }
@@ -113,5 +120,13 @@ public class BudgetService extends AbstractService{
         budget.increaseAmount(amount);
         budgetRepository.save(budget);
         return modelMapper.map(budget,BudgetReturnDto.class);
+    }
+
+    public void deleteBudget(long userId, long id) {
+        Budget budget = findBudgetById(id);
+        if (budget.getUser().getId() != userId){
+            throw new UnauthorizedException("No permission for this action");
+        }
+        budgetRepository.delete(budget);
     }
 }

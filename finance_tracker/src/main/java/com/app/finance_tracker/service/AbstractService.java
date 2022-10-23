@@ -38,7 +38,6 @@ public abstract class AbstractService {
     protected  IconRepository iconRepository;
 
 
-
     protected Budget findBudgetById(long id){
         Budget budget = budgetRepository
                 .findById(id)
