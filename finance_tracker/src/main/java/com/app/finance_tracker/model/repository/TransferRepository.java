@@ -14,7 +14,9 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
 //
 //    List<Transfer> findAllByReceiverUserIdAndSenderUserId(long senderId, long userId);
 
-    List<Transfer> findAllBySender(long accountId);
-    List<Transfer>  findAllByDateBetweenAndSenderIdOrReceiverId(LocalDateTime form, LocalDateTime to, long senderId, long receiverId);
+    List<Transfer> findAllByReceiverIdAndSenderId(long receiverId, long senderId);
+    List<Transfer> findAllByReceiverId(long accountId);
+    List<Transfer> findAllBySenderId(long accountId);
+
 }
 

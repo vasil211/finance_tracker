@@ -6,10 +6,12 @@ import com.app.finance_tracker.service.TransactionService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -20,12 +22,13 @@ public class TransactionController extends AbstractController {
     @Autowired
     private ModelMapper modelMapper;
 
+    //make a transaction
     @PostMapping("/transactions")
     public ResponseEntity<TransactionReturnDto> createTransaction(@RequestBody CreateTransactionDto transactionDto,
-                                                                  @PathVariable long id, HttpServletRequest req){
+                                                                  HttpServletRequest req){
         checkIfLogged(req);
-        checkIfAccountBelongsToUser(id,req);
-        TransactionReturnDto transaction = transactionService.createTransaction(transactionDto,id);
+        checkIfAccountBelongsToUser(transactionDto.getAccountId(),req);
+        TransactionReturnDto transaction = transactionService.createTransaction(transactionDto,transactionDto.getAccountId());
         return new ResponseEntity<>(transaction, HttpStatus.CREATED);
     }
 
@@ -37,7 +40,7 @@ public class TransactionController extends AbstractController {
         return new ResponseEntity<>(transactions,HttpStatus.OK);
     }
 
-    //transaction by id
+    //get a transaction by id
     @GetMapping("/transactions/{id}")
     public ResponseEntity<TransactionReturnDto> getTransactionById(@PathVariable long id, HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
@@ -53,4 +56,13 @@ public class TransactionController extends AbstractController {
         return new ResponseEntity<>(transactions,HttpStatus.OK);
     }
 
+    //get transaction after a date
+    @GetMapping("/transactions/filtered_date")
+    public ResponseEntity<List<TransactionReturnDto>> getFilteredByDateTransactions(@RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date date,
+                                                                                    HttpServletRequest request){
+        //logic
+        long userId = checkIfLoggedAndReturnUserId(request);
+        List<TransactionReturnDto> list = transactionService.getAllByUserIdAfterDate(userId,date);
+        return new ResponseEntity<>(list,HttpStatus.OK);
+    }
 }

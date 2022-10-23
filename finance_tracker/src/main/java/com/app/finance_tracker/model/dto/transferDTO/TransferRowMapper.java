@@ -12,11 +12,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Repository
-public class TransferRowMapper implements RowMapper<Transfer> {
+public class TransferRowMapper{
+        /*implements RowMapper<Transfer> {*/
 @Autowired
 private CurrencyRepository currencyRepository;
 
-    public Transfer mapRow(ResultSet rs) throws SQLException {
+    /*public Transfer mapRow(ResultSet rs) throws SQLException {
 
         Transfer transfer = new Transfer();
         transfer.setId(rs.getLong("id"));
@@ -27,10 +28,10 @@ private CurrencyRepository currencyRepository;
 
         return customer;
 
-    }
+    }*/
 
-    @Override
+    /*@Override
     public int[] getRowsForPaths(TreePath[] path) {
         return new int[0];
-    }
+    }*/
 }

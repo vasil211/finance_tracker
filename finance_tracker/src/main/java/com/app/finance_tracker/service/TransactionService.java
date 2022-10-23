@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService extends AbstractService{
@@ -57,6 +58,14 @@ public class TransactionService extends AbstractService{
                 .stream().filter(t -> t.getAccount().getUser().getId() == userId)
                 .map(t -> modelMapper.map(t, TransactionReturnDto.class)).toList();
         return transactions;
+    }
+
+    public List<TransactionReturnDto> getAllByUserIdAfterDate(long userId,Date date) {
+        List<TransactionReturnDto> list = getAllByUserId(userId).stream()
+                .filter(t -> t.getCreatedAt().after(date))
+                .toList();
+
+        return list;
     }
 
     @Transactional

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -68,7 +69,7 @@ public class TransferService extends AbstractService {
             throw new BadRequestException("Account does not belong to user");
         }
 
-        List<Transfer> transfers = transferRepository.findAllSentTransfers(accountId);
+        List<Transfer> transfers = transferRepository.findAllBySenderId(accountId);
         List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
         for(Transfer transfer : transfers){
             transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
@@ -76,8 +77,8 @@ public class TransferService extends AbstractService {
         return transferForReturnDTOS;
     }
 
-    public List<TransferForReturnDTO> getAllReceivedTransfers(long userId) {
-        List<Transfer> transfers = transferRepository.findAllByReceiverUserId(userId);
+    public List<TransferForReturnDTO> getAllReceivedTransfers(long accountId) {
+        List<Transfer> transfers = transferRepository.findAllByReceiverId(accountId);
         List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
         for(Transfer transfer : transfers){
             transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
@@ -85,8 +86,8 @@ public class TransferService extends AbstractService {
         return transferForReturnDTOS;
     }
 
-    public List<TransferForReturnDTO> getAllReceivedTransfersFromUser(long senderId, long userId) {
-        List<Transfer> transfers = transferRepository.findAllByReceiverUserIdAndSenderUserId(senderId, userId);
+    public List<TransferForReturnDTO> getAllReceivedTransfersFromAccount(long id, long fromId) {
+        List<Transfer> transfers = transferRepository.findAllByReceiverIdAndSenderId(id,fromId);
         List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
         for(Transfer transfer : transfers){
             transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
@@ -100,10 +101,11 @@ public class TransferService extends AbstractService {
         transferForReturnDTO.setCurrency(modelMapper.map(transfer.getCurrency(), CurrencyForTransferDTO.class));
         transferForReturnDTO.setReceiver(modelMapper.map(transfer.getReceiver().getUser(), UserForTransferDTO.class));
         transferForReturnDTO.setSender(modelMapper.map(transfer.getSender().getUser(), UserForTransferDTO.class));
+        transferForReturnDTO.setDate(transfer.getDate());
         return transferForReturnDTO;
     }
 
-    public List<TransferForReturnDTO> getAllTransfersWithFilter(DateFilterDTO dateFilterDTO, long userId) {
-
+    public List<TransferForReturnDTO> getAllTransfersWithFilter(long id, Date fromDate, Date toDate) {
+        return null;
     }
 }

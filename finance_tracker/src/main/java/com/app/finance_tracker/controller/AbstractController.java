@@ -89,7 +89,7 @@ public abstract class AbstractController {
 
     protected void checkIfAccountBelongsToUser(long accountId, HttpServletRequest request){
         Account account = accountService.getAccountById(accountId);
-        if(account.getUser().getId() != (int) request.getSession().getAttribute(USER_ID)){
+        if(account.getUser().getId() != (long) request.getSession().getAttribute(USER_ID)){
             throw new UnauthorizedException("You are not authorized to update this account");
         }
     }

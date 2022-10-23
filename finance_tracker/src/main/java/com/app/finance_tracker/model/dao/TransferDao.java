@@ -11,10 +11,10 @@ import java.util.List;
 @Component
 public class TransferDao {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    /*@Autowired
+    private JdbcTemplate jdbcTemplate;*/
 
-    public List<Transfer> findAll() {
+   /* public List<Transfer> findAll() {
 
         String sql = "SELECT * FROM CUSTOMER";
 
@@ -24,5 +24,5 @@ public class TransferDao {
 
         return customers;
 
-    }
+    }*/
 }
