@@ -54,6 +54,7 @@ public abstract class AbstractController {
         return buildError(e,HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
     private ErrorDTO buildError(Exception e,HttpStatus status){
         e.printStackTrace();
         ErrorDTO errorDTO = new ErrorDTO();
