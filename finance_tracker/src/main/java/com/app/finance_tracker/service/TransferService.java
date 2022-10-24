@@ -105,7 +105,12 @@ public class TransferService extends AbstractService {
         return transferForReturnDTO;
     }
 
-    public List<TransferForReturnDTO> getAllTransfersWithFilter(long id, Date fromDate, Date toDate) {
-        return null;
+    public List<TransferForReturnDTO> getAllTransfersWithFilter(long accountId, Date fromDate, Date toDate) {
+        List<Transfer> transfers = transferDAO.getAllTransfersWithFilter(accountId, fromDate, toDate);
+        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
+        for(Transfer transfer : transfers){
+            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
+        }
+        return transferForReturnDTOS;
     }
 }

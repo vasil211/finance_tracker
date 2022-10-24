@@ -1,6 +1,6 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.app.finance_tracker.model.dao.TransferDAO;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.repository.*;
@@ -39,7 +39,8 @@ public abstract class AbstractService {
     protected TransferRepository transferRepository;
     @Autowired
     protected TransferValidation transferValidation;
-
+    @Autowired
+    protected TransferDAO transferDAO;
 
     protected Budget findBudgetById(long id){
         Budget budget = budgetRepository

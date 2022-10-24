@@ -1,6 +1,5 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.dto.DateFilterDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferForReturnDTO;
 import com.app.finance_tracker.service.TransferService;
@@ -19,6 +18,7 @@ public class TransferController extends AbstractController {
 
     @Autowired
     private TransferService transferService;
+
 
     // send
     @PostMapping("/transfer")
@@ -56,26 +56,26 @@ public class TransferController extends AbstractController {
 
     //get all received from account
     @GetMapping("accounts/{id}/transfers/received/{fromId}")
-    public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfersFromUser(@PathVariable long id,@PathVariable long fromId,
+    public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfersFromUser(@PathVariable long id, @PathVariable long fromId,
                                                                                       HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
-        checkIfAccountBelongsToUser(id,request);
+        checkIfAccountBelongsToUser(id, request);
         List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfersFromAccount(id, fromId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
     // get all with filter by date
-    /*@GetMapping("accounts/{id}/transfers/filter")
+    @GetMapping("accounts/{id}/transfers/filter")
     public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersWithFilter(@PathVariable long id,
-                                                                                @RequestParam("from_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date fromDte,
-                                                                                @RequestParam("to_date") @DateTimeFormat(pattern="yyyy-MM-dd") Date toDate,
+                                                                                @RequestParam("from_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDte,
+                                                                                @RequestParam("to_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
                                                                                 HttpServletRequest request) {
-        long userId = checkIfLoggedAndReturnUserId(request);
-        checkIfAccountBelongsToUser(id,request);
-        List<TransferForReturnDTO> transfer = transferService.getAllTransfersWithFilter(id,fromDte,toDate);
+        checkIfLogged(request);
+        checkIfAccountBelongsToUser(id, request);
+        List<TransferForReturnDTO> transfer = transferService.getAllTransfersWithFilter(id, fromDte, toDate);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
+    }
+    // todo get all send with filter by date
+    // todo get all received with filter by date
 
-        // todo get all send with filter by date
-        // todo get all received with filter by date
-    }*/
 }
