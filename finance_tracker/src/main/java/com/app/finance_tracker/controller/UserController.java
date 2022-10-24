@@ -5,11 +5,13 @@ import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
+import com.app.finance_tracker.model.utility.EmailServiceImpl;
 import com.app.finance_tracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +30,14 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
+    @Autowired
+    private EmailServiceImpl emailService;
     @PostMapping("/login")
     public ResponseEntity<UserWithoutPasswordDTO> loginUser(@RequestBody UserLoginDTO userDTO, HttpServletRequest request) {
         User user = userService.loginUser(userDTO);
         logUser(request, user.getId());
+
+        emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
