@@ -1,7 +1,10 @@
 package com.app.finance_tracker.controller;
 
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
 import com.app.finance_tracker.model.dto.transferDTO.TransferDTO;
+import com.app.finance_tracker.model.dto.transferDTO.TransferFilteredDto;
 import com.app.finance_tracker.model.dto.transferDTO.TransferForReturnDTO;
+import com.app.finance_tracker.service.CurrencyExchangeService;
 import com.app.finance_tracker.service.TransferService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,8 @@ import java.util.List;
 @RestController
 public class TransferController extends AbstractController {
 
+    @Autowired
+    private CurrencyExchangeService currencyExchangeService;
     @Autowired
     private TransferService transferService;
 
@@ -65,17 +70,30 @@ public class TransferController extends AbstractController {
     }
 
     // get all with filter by date
-    @GetMapping("accounts/{id}/transfers/filter")
+    /*@GetMapping("accounts/{id}/transfers/filter")
     public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersWithFilter(@PathVariable long id,
                                                                                 @RequestParam("from_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDte,
                                                                                 @RequestParam("to_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
+                                                                                @RequestParam("from_amount") double fromAmount,@RequestParam("to_amount") double toAmount,
                                                                                 HttpServletRequest request) {
         checkIfLogged(request);
         checkIfAccountBelongsToUser(id, request);
-        List<TransferForReturnDTO> transfer = transferService.getAllTransfersWithFilter(id, fromDte, toDate);
+        List<TransferForReturnDTO> transfer = transferService.getAllSentTransfersFiltered(id, fromDte, toDate,fromAmount,toAmount);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
+    }*/
+    @GetMapping("/users/transfers/filtered")
+    public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersFiltered(HttpServletRequest request, @RequestBody TransferFilteredDto filteredDto){
+        //checkIfLogged(request);
+        //check if accounts belong to current user
+        List<TransferForReturnDTO> transfers = transferService.getAllTransfersFiltered(filteredDto);
+        return ResponseEntity.ok(transfers);
     }
+
     // todo get all send with filter by date
     // todo get all received with filter by date
 
+    @GetMapping("/test")
+    public CurrencyExchangeDto exchange(@RequestParam String from,@RequestParam String to,@RequestParam double amount){
+        return currencyExchangeService.getExchangedCurrency(from,to,amount);
+    }
 }

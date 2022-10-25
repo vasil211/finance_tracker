@@ -13,9 +13,13 @@ public class Currency {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @Column
-    private String abbreviation;
+    private String code;
     @Column
-    private String full_name;
+    private String name;
+    @Column
+    private String symbol;
+    @Column
+    private String namePlural;
 
     @OneToMany(mappedBy = "currency")
     private List<Account> accounts;

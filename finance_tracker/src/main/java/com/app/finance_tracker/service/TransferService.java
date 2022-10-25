@@ -1,6 +1,7 @@
 package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.dto.DateFilterDTO;
+import com.app.finance_tracker.model.dto.transferDTO.TransferFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForTransferDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferDTO;
@@ -19,7 +20,7 @@ import java.util.List;
 
 @Controller
 public class TransferService extends AbstractService {
-    @Transactional
+
     public TransferForReturnDTO createTransfer(TransferDTO transferDTO, long userId) {
         if (transferDTO.getAmount() <= 0) {
             throw new BadRequestException("Amount must be positive");
@@ -105,12 +106,24 @@ public class TransferService extends AbstractService {
         return transferForReturnDTO;
     }
 
-    public List<TransferForReturnDTO> getAllTransfersWithFilter(long accountId, Date fromDate, Date toDate) {
-        List<Transfer> transfers = transferDAO.getAllTransfersWithFilter(accountId, fromDate, toDate);
+    //get received transfers from one date to another
+    /*public List<TransferForReturnDTO> getAllTransfersWithFilter(long accountId, Date fromDate, Date toDate) {
+        List<Transfer> transfers = transferDAO.getAllTransfersWithFilterByDate(accountId, fromDate, toDate);
+        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
+        for(Transfer transfer : transfers){
+            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
+        }
+        return transferForReturnDTOS;
+    }*/
+    public List<TransferForReturnDTO> getAllTransfersFiltered(TransferFilteredDto filteredDto) {
+        List<Transfer> transfers = transferDAO.getAllTransfersFiltered(filteredDto.getToAccountsIds(),filteredDto.getFromAccountsIds(),filteredDto.getFromDate(),
+                filteredDto.getToDate(),filteredDto.getFromAmount(),filteredDto.getToAmount(),filteredDto.getCurrenciesIds());
+
         List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
         for(Transfer transfer : transfers){
             transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
         }
         return transferForReturnDTOS;
     }
+
 }

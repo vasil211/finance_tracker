@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +18,8 @@ import java.util.List;
 @RestController
 public class UserController extends AbstractController {
 
+    /*@Autowired
+    private CurrencyRepository currencyRepository;*/
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -37,7 +38,7 @@ public class UserController extends AbstractController {
         User user = userService.loginUser(userDTO);
         logUser(request, user.getId());
 
-        emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
+        //emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
@@ -73,4 +74,10 @@ public class UserController extends AbstractController {
 //        // send email to user who hasn't logged in for 5 days
 //        System.out.println("Sending email...");
 //    }
+
+    //ADDED ALL CURRENCIES
+    /*@PostMapping("/currencies")
+    public void addCurrencies(@RequestBody List<Currency> currencies){
+        currencyRepository.saveAll(currencies);
+    }*/
 }
