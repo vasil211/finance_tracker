@@ -6,13 +6,23 @@ import com.app.finance_tracker.model.dto.transferDTO.TransferFilteredDto;
 import com.app.finance_tracker.model.dto.transferDTO.TransferForReturnDTO;
 import com.app.finance_tracker.service.CurrencyExchangeService;
 import com.app.finance_tracker.service.TransferService;
+import jakarta.mail.Multipart;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.itextpdf.text.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 
@@ -54,8 +64,7 @@ public class TransferController extends AbstractController {
     @GetMapping("accounts/{id}/transfer/received")
     public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfers(HttpServletRequest request, @PathVariable long id) {
         long userId = checkIfLoggedAndReturnUserId(request);
-        checkIfAccountBelongsToUser(id, request);
-        List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfers(id);
+        List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfers(id, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
@@ -64,8 +73,7 @@ public class TransferController extends AbstractController {
     public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfersFromUser(@PathVariable long id, @PathVariable long fromId,
                                                                                       HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
-        checkIfAccountBelongsToUser(id, request);
-        List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfersFromAccount(id, fromId);
+        List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfersFromAccount(id, fromId, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
@@ -83,17 +91,21 @@ public class TransferController extends AbstractController {
     }*/
     @GetMapping("/users/transfers/filtered")
     public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersFiltered(HttpServletRequest request, @RequestBody TransferFilteredDto filteredDto){
-        //checkIfLogged(request);
+        long id = checkIfLoggedAndReturnUserId(request);
         //check if accounts belong to current user
-        List<TransferForReturnDTO> transfers = transferService.getAllTransfersFiltered(filteredDto);
+        List<TransferForReturnDTO> transfers = transferService.getAllTransfersFiltered(filteredDto, id);
         return ResponseEntity.ok(transfers);
     }
-
-    // todo get all send with filter by date
-    // todo get all received with filter by date
 
     @GetMapping("/test")
     public CurrencyExchangeDto exchange(@RequestParam String from,@RequestParam String to,@RequestParam double amount){
         return currencyExchangeService.getExchangedCurrency(from,to,amount);
+    }
+    @SneakyThrows
+    @GetMapping("/transfers/downloadPdf")
+    public @ResponseBody byte[] downloadPdf(HttpServletRequest request , HttpServletResponse response){
+        byte[] asd = transferService.downloadPdf(response);
+
+        return  asd;
     }
 }

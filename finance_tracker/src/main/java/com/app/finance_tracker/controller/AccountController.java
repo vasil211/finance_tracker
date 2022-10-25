@@ -6,7 +6,6 @@ import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
 import com.app.finance_tracker.service.AccountService;
-import com.app.finance_tracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,17 +38,15 @@ public class AccountController extends AbstractController {
 
     @PutMapping("/account")
     public ResponseEntity<AccountForReturnDTO> updateAccount(@RequestBody AccountForUpdateDTO accountDTO, HttpServletRequest request) {
-        checkIfLogged(request);
-        checkIfAccountBelongsToUser(accountDTO.getId(), request);
-        AccountForReturnDTO account = accountService.updateAccount(accountDTO);
+        long userId = checkIfLoggedAndReturnUserId(request);
+        AccountForReturnDTO account = accountService.updateAccount(accountDTO, userId);
         return ResponseEntity.ok(account);
     }
 
     @PutMapping("/account/fill")
     public ResponseEntity<AccountForReturnDTO> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO, HttpServletRequest request) {
-        checkIfLogged(request);
-        checkIfAccountBelongsToUser(accountDTO.getId(), request);
-        AccountForReturnDTO account = accountService.addMoneyToAccount(accountDTO);
+        long userId = checkIfLoggedAndReturnUserId(request);
+        AccountForReturnDTO account = accountService.addMoneyToAccount(accountDTO, userId);
         return ResponseEntity.ok(account);
     }
 

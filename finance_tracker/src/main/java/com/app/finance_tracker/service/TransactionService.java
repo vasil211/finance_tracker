@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TransactionService extends AbstractService{
@@ -39,6 +38,7 @@ public class TransactionService extends AbstractService{
     }
 
     public List<TransactionReturnDto> getAllTransactionsForAccount(long userId, long accountId) {
+        checkIfAccountBelongsToUser(userId, accountId);
         if (!userRepository.existsById(userId)){
             throw new NotFoundException("user not found");
         }
@@ -69,7 +69,8 @@ public class TransactionService extends AbstractService{
     }
 
     @Transactional
-    public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id) {
+    public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id, long userId) {
+        checkIfAccountBelongsToUser(id, userId);
         if (!isValidAmount(transactionDto.getAmount())){
             throw new BadRequestException("money should be higher than 0");
         }
@@ -123,7 +124,7 @@ public class TransactionService extends AbstractService{
         if (!userRepository.existsById(userId)){
             throw new NotFoundException("user not found.");
         }
-        Transaction transaction = findTransactionById(id);
+        Transaction transaction = getTransactionById(id);
 
         if (transaction.getAccount().getUser().getId()!= userId){
             throw new UnauthorizedException("no access to this transaction");

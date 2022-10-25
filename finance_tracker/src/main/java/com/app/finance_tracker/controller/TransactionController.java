@@ -26,9 +26,8 @@ public class TransactionController extends AbstractController {
     @PostMapping("/transactions")
     public ResponseEntity<TransactionReturnDto> createTransaction(@RequestBody CreateTransactionDto transactionDto,
                                                                   HttpServletRequest req){
-        checkIfLogged(req);
-        checkIfAccountBelongsToUser(transactionDto.getAccountId(),req);
-        TransactionReturnDto transaction = transactionService.createTransaction(transactionDto,transactionDto.getAccountId());
+       long userId = checkIfLoggedAndReturnUserId(req);
+        TransactionReturnDto transaction = transactionService.createTransaction(transactionDto,transactionDto.getAccountId(), userId);
         return new ResponseEntity<>(transaction, HttpStatus.CREATED);
     }
 
@@ -51,7 +50,6 @@ public class TransactionController extends AbstractController {
     @GetMapping("/accounts/{accountId}/transactions")
     public ResponseEntity<List<TransactionReturnDto>> getAccountTransactions(@PathVariable long accountId, HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
-        checkIfAccountBelongsToUser(accountId,request);
         List<TransactionReturnDto> transactions =transactionService.getAllTransactionsForAccount(userId,accountId);
         return new ResponseEntity<>(transactions,HttpStatus.OK);
     }
@@ -60,7 +58,6 @@ public class TransactionController extends AbstractController {
     @GetMapping("/transactions/filtered_date")
     public ResponseEntity<List<TransactionReturnDto>> getFilteredByDateTransactions(@RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date date,
                                                                                     HttpServletRequest request){
-        //logic
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransactionReturnDto> list = transactionService.getAllByUserIdAfterDate(userId,date);
         return new ResponseEntity<>(list,HttpStatus.OK);

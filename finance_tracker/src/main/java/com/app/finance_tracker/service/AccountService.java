@@ -38,7 +38,8 @@ public class AccountService extends AbstractService {
         return accounts;
     }
 
-    public AccountForReturnDTO updateAccount(AccountForUpdateDTO accountDTO) {
+    public AccountForReturnDTO updateAccount(AccountForUpdateDTO accountDTO, long userId) {
+        checkIfAccountBelongsToUser(accountDTO.getId(), userId);
         accountValidation.validateAccountForUpdate(accountDTO);
         Account account = new Account();
         account.setName(accountDTO.getName());
@@ -48,9 +49,9 @@ public class AccountService extends AbstractService {
         return modelMapper.map(account, AccountForReturnDTO.class);
     }
 
-    public AccountForReturnDTO addMoneyToAccount(AccountAddMoneyDTO accountDTO) {
-        Account account = accountRepository.findById(accountDTO.getId())
-                .orElseThrow(() -> new BadRequestException("Invalid account id"));
+    public AccountForReturnDTO addMoneyToAccount(AccountAddMoneyDTO accountDTO, long userId) {
+        checkIfAccountBelongsToUser(accountDTO.getId(), userId);
+        Account account = getAccountById(accountDTO.getId());
         accountValidation.validateMoneyAmount(accountDTO.getAmount());
         account.setBalance(account.getBalance() + accountDTO.getAmount());
         accountRepository.save(account);

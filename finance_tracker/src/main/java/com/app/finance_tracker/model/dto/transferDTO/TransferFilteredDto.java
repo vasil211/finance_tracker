@@ -11,13 +11,13 @@ import java.util.List;
 
 @Data
 public class TransferFilteredDto {
-    private long id;
-    private List<Integer> fromAccountsIds;
-    private List<Integer> toAccountsIds;
+    private List<Long> fromAccountsIds;
+    private List<Long> toAccountsIds;
+    private List<Long> ownAccountsIds;
     private double fromAmount;
     private double toAmount;
-    private List<Integer> currenciesIds;
+    private List<Long> currenciesIds;
     private LocalDate fromDate;
     private LocalDate toDate;
-    private String output;
+    private String choice;
 }

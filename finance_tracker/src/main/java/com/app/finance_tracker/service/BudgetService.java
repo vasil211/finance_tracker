@@ -35,7 +35,7 @@ public class BudgetService extends AbstractService{
         if (!budgetValidation.validDate(budgetDto.getFromDate(),budgetDto.getToDate())){
             throw new InvalidArgumentsException("to date cant be after from date");
         }
-        Budget budget = findBudgetById(id);
+        Budget budget = getBudgetById(id);
         if (budget.getUser().getId() != budgetDto.getUserId())
         {
             throw new UnauthorizedException("No access to this.");
@@ -98,7 +98,7 @@ public class BudgetService extends AbstractService{
         {
             throw new NotFoundException("User not found.");
         }
-        Budget budget = findBudgetById(id);
+        Budget budget = getBudgetById(id);
         if (budget.getUser().getId() != userId){
             throw  new UnauthorizedException("dont have permission for this action");
         }
@@ -113,7 +113,7 @@ public class BudgetService extends AbstractService{
         {
             throw new NotFoundException("User not found.");
         }
-        Budget budget = findBudgetById(id);
+        Budget budget = getBudgetById(id);
         if (budget.getUser().getId() != userId){
             throw  new UnauthorizedException("dont have permission for this action");
         }
@@ -123,7 +123,7 @@ public class BudgetService extends AbstractService{
     }
 
     public void deleteBudget(long userId, long id) {
-        Budget budget = findBudgetById(id);
+        Budget budget = getBudgetById(id);
         if (budget.getUser().getId() != userId){
             throw new UnauthorizedException("No permission for this action");
         }

@@ -3,6 +3,7 @@ package com.app.finance_tracker.service;
 import com.app.finance_tracker.model.dao.TransferDAO;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
+import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
 import com.app.finance_tracker.model.utility.validation.TransferValidation;
@@ -42,7 +43,7 @@ public abstract class AbstractService {
     @Autowired
     protected TransferDAO transferDAO;
 
-    protected Budget findBudgetById(long id){
+    protected Budget getBudgetById(long id){
         Budget budget = budgetRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("No budget found with this id"));
@@ -61,12 +62,12 @@ public abstract class AbstractService {
         return account;
     }
 
-    protected Transaction findTransactionById(long id) {
+    protected Transaction getTransactionById(long id) {
         Transaction transaction = transactionRepository.findById(id).orElseThrow( ()-> new NotFoundException("transaction not found!"));
         return transaction;
     }
 
-    protected ScheduledPayment findScheduledPaymentById(long id){
+    protected ScheduledPayment getScheduledPaymentById(long id){
         ScheduledPayment scheduledPayment = scheduledPaymentRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("No scheduled payment found with this id"));
         return scheduledPayment;
@@ -90,8 +91,15 @@ public abstract class AbstractService {
         return user;
     }
 
-    public Transfer findTransferById(long id) {
+    public Transfer getTransferById(long id) {
         return transferRepository.findById(id).orElseThrow(() -> new NotFoundException("Transfer not found"));
+    }
+
+    protected void checkIfAccountBelongsToUser(long accountId, long userId) {
+        Account account = getAccountById(accountId);
+        if(account.getUser().getId() != userId){
+            throw new UnauthorizedException("You are not authorized to update this account");
+        }
     }
 
 }

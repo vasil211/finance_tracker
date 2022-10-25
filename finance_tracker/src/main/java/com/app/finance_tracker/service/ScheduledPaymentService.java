@@ -16,8 +16,9 @@ import java.util.List;
 
 @Service
 public class ScheduledPaymentService extends AbstractService{
-    public ScheduledPaymentResponseDto createScheduledPayment(long id, ScheduledPaymentCreateDto scheduledPaymentCreateDto) {
+    public ScheduledPaymentResponseDto createScheduledPayment(long id, ScheduledPaymentCreateDto scheduledPaymentCreateDto, long userId) {
         //validate user as well
+        checkIfAccountBelongsToUser(id, userId);
         Account account= getAccountById(id);
         if (!isValidAmount(scheduledPaymentCreateDto.getAmount())){
             throw new BadRequestException("Money should be higher than 0");
@@ -41,18 +42,20 @@ public class ScheduledPaymentService extends AbstractService{
         scheduledPayment.setTitle(dto.getTitle());
     }
 
-    public ScheduledPaymentResponseDto getPaymentById(long accountId,long id) {
+    public ScheduledPaymentResponseDto getPaymentById(long accountId,long id, long userId) {
+        checkIfAccountBelongsToUser(accountId, userId);
         if (!accountRepository.existsById(accountId)){
             throw new NotFoundException("Account does not exist");
         }
-        ScheduledPayment scheduledPayment= findScheduledPaymentById(id);
+        ScheduledPayment scheduledPayment= getScheduledPaymentById(id);
         if (scheduledPayment.getAccount().getId()!=accountId){
             throw new UnauthorizedException("Dont have permission to view this page");
         }
         return modelMapper.map(scheduledPayment,ScheduledPaymentResponseDto.class);
     }
 
-    public List<ScheduledPaymentResponseDto> getAllScheduledPaymentsByAccId(long id) {
+    public List<ScheduledPaymentResponseDto> getAllScheduledPaymentsByAccId(long id, long userId) {
+        checkIfAccountBelongsToUser(id, userId);
         if (!accountRepository.existsById(id)){
             throw new NotFoundException("Account does not exist");
         }
@@ -60,19 +63,15 @@ public class ScheduledPaymentService extends AbstractService{
         return list;
     }
 
-    public void deleteScheduledPayment(long accountId, long id) {
-        ScheduledPayment payment = findScheduledPaymentById(id);
-        if (payment.getAccount().getId() != accountId) {
-            throw new UnauthorizedException("no permission for this action");
-        }
+    public void deleteScheduledPayment(long accountId, long id, long userId) {
+        checkIfAccountBelongsToUser(accountId, userId);
+        ScheduledPayment payment = getScheduledPaymentById(id);
         scheduledPaymentRepository.delete(payment);
     }
 
-    public ScheduledPaymentResponseDto editPayment(long accountId, long id, ScheduledPaymentCreateDto scheduledPaymentEditDto) {
-        ScheduledPayment scheduledPayment = findScheduledPaymentById(id);
-        if (scheduledPayment.getAccount().getId() != accountId){
-            throw new UnauthorizedException("unauthorized action");
-        }
+    public ScheduledPaymentResponseDto editPayment(long accountId, long id, ScheduledPaymentCreateDto scheduledPaymentEditDto, long userId) {
+        checkIfAccountBelongsToUser(accountId, userId);
+        ScheduledPayment scheduledPayment = getScheduledPaymentById(id);
         if (scheduledPayment.getCategory().getId() != scheduledPaymentEditDto.getCategoryId()){
             Category category = getCategoryById(scheduledPaymentEditDto.getCategoryId());
             scheduledPayment.setCategory(category);
