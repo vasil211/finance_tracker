@@ -76,6 +76,7 @@ public class TransactionService extends AbstractService{
         }
 
         Account account = getAccountById(id);
+        //TODO Refactor budget later
         Budget budget = budgetRepository.findAllByUserId(account.getUser().getId())
                 .stream().filter(b->b.getCategory().getId()==transactionDto.getCategoryId())
                 .findFirst().orElseThrow(() -> new BadRequestException("You dont have budget for this category."));

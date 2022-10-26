@@ -1,5 +1,6 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
 import com.app.finance_tracker.model.dto.transferDTO.TransferFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForTransferDTO;
@@ -11,16 +12,20 @@ import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.entities.Transfer;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.itextpdf.text.*;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,8 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Controller
+@Service
 public class TransferService extends AbstractService {
+
+    @Autowired
+    CurrencyExchangeService currencyExchangeService;
+
 
     public TransferForReturnDTO createTransfer(TransferDTO transferDTO, long userId) {
         if (transferDTO.getAmount() <= 0) {
@@ -39,32 +48,42 @@ public class TransferService extends AbstractService {
         }
         Account sender = getAccountById(transferDTO.getSenderAccountId());
         transferValidation.checkIfAccountBelongsToUser(sender, userId);
-        Currency currency = getCurrencyById(transferDTO.getCurrencyId());
 
-        // todo check if currency is same, and exchange if not
         if (sender.getBalance() < transferDTO.getAmount()) {
             throw new BadRequestException("Not enough money on account");
         }
         Account receiver = getAccountById(transferDTO.getReceiverAccountId());
 
-        Transfer transfer = doTransfer(transferDTO, sender, receiver, currency);
+        if (sender.getId()== receiver.getId()){
+            throw new BadRequestException("Cannot send money to same account");
+        }
+
+        Transfer transfer = doTransfer(transferDTO, sender, receiver);
 
         return mapTransferForReturnDTO(transfer);
     }
 
     @Transactional
-    private Transfer doTransfer(TransferDTO transferDTO, Account sender, Account receiver, Currency currency) {
-        // todo exchange currency if needed (if currency is different)
-        sender.setBalance(sender.getBalance() - transferDTO.getAmount());
+    private Transfer doTransfer(TransferDTO transferDTO, Account sender, Account receiver) {
+        // exchange currency if needed
+        double amount = transferDTO.getAmount();
+        if (sender.getCurrency().getId() != receiver.getCurrency().getId()){
+            Currency senderCurrency = sender.getCurrency();
+            Currency receiverCurrency = receiver.getCurrency();
+            CurrencyExchangeDto dto = currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(), amount);
+            amount=dto.getResult();
+        }
+        sender.removeFromBalance(transferDTO.getAmount());
         accountRepository.save(sender);
-        receiver.setBalance(receiver.getBalance() + transferDTO.getAmount());
+        receiver.increaseBalance(amount);
         accountRepository.save(receiver);
         Transfer transfer = new Transfer();
-        transfer.setAmount(transferDTO.getAmount());
-        transfer.setCurrency(currency);
+        transfer.setAmount(amount);
+        transfer.setCurrency(sender.getCurrency());
         transfer.setReceiver(receiver);
         transfer.setSender(sender);
         transfer.setDate(LocalDateTime.now());
+        transfer.setDescription(transferDTO.getDescription());
         transferRepository.save(transfer);
         return transfer;
     }
@@ -119,6 +138,7 @@ public class TransferService extends AbstractService {
         transferForReturnDTO.setReceiver(modelMapper.map(transfer.getReceiver().getUser(), UserForTransferDTO.class));
         transferForReturnDTO.setSender(modelMapper.map(transfer.getSender().getUser(), UserForTransferDTO.class));
         transferForReturnDTO.setDate(transfer.getDate());
+        transferForReturnDTO.setDescription(transfer.getDescription());
         return transferForReturnDTO;
     }
 

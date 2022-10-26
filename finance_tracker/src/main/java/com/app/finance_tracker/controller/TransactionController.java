@@ -58,6 +58,7 @@ public class TransactionController extends AbstractController {
     @GetMapping("/transactions/filtered_date")
     public ResponseEntity<List<TransactionReturnDto>> getFilteredByDateTransactions(@RequestParam("date") @DateTimeFormat(pattern="yyyy-MM-dd") Date date,
                                                                                     HttpServletRequest request){
+
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransactionReturnDto> list = transactionService.getAllByUserIdAfterDate(userId,date);
         return new ResponseEntity<>(list,HttpStatus.OK);

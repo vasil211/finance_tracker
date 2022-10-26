@@ -30,4 +30,6 @@ public class Transfer {
     private Account receiver;
     @Column(name = "date_of_transfer")
     private LocalDateTime date;
+    @Column
+    private String description;
 }
