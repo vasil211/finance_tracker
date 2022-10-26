@@ -1,10 +1,12 @@
 package com.app.finance_tracker.controller;
 
+import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
+import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.utility.EmailServiceImpl;
 import com.app.finance_tracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,8 +78,10 @@ public class UserController extends AbstractController {
 //    }
 
     //ADDED ALL CURRENCIES
-    /*@PostMapping("/currencies")
+    @Autowired
+    private CurrencyRepository currencyRepository;
+    @PostMapping("/currencies")
     public void addCurrencies(@RequestBody List<Currency> currencies){
         currencyRepository.saveAll(currencies);
-    }*/
+    }
 }

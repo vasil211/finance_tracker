@@ -172,20 +172,22 @@ public class TransferService extends AbstractService {
         }
         return transferForReturnDTOS;
     }
-
     @SneakyThrows
-    public byte[] downloadPdf(HttpServletResponse resp) {
-        //List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto);
-
+    public byte[] downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
+        List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);
         Document document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream("iTextHelloWorld.pdf"));
         document.open();
-        Font font = FontFactory.getFont(FontFactory.COURIER, 16, BaseColor.BLACK);
-        // todo add text to pdf
-        Chunk chunk = new Chunk("Hello World, i cry", font);
-        document.add(chunk);
-        document.close();
+        Font font = FontFactory.getFont(FontFactory.COURIER, 12, BaseColor.BLACK);
+        for (TransferForReturnDTO transfer : transfers) {
+            String str = transfer.toString();
+            document.add(new Paragraph("\n"));
+            Chunk chunk = new Chunk(str, font);
+            document.add(chunk);
+            System.out.println(transfer.toString());
+        }
 
+        document.close();
         File f = new File("iTextHelloWorld.pdf");
         if (!f.exists()) {
             throw new NotFoundException("File does not exist!");

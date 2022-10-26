@@ -39,10 +39,10 @@ CREATE TABLE categories (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(25) NOT NULL,
     icon_id INT NOT NULL,
-    user_id int default null,
+    user_id INT DEFAULT NULL,
     FOREIGN KEY (icon_id)
         REFERENCES icons (id),
-        UNIQUE KEY unique_key (name , user_id)
+    UNIQUE KEY unique_key (name , user_id)
 );
 
 CREATE TABLE budgets (
@@ -102,8 +102,10 @@ CREATE TABLE scheduled_payments (
         REFERENCES accounts (id)
 );
 
-insert into currencies(abbreviation, full_name) values("BGN", "Bulgarian Lev");
 insert into icons(url) values("istock-500593292-1bb78a1e79717b7a2ac14dc9edf99cc71723d261-s1100-c50.jpg");
 insert into categories(name,icon_id) values("plant",1);
 
+INSERT INTO `users` VALUES (1,'martok11','$2a$10$os.ZipCPVC.vDcvaRq89pupmkqMMCTXlhoCUes79/rlfRJG2C.b4S','lukasz6@abv.bg','Martin','Kuyumdjiev','2022-10-23 23:07:21'),
+(2,'vasil1122','$2a$10$mIUHELmoEnv9.ZH8Y.IiyOxd3ERsMKKihZYUqUerjEgfqYC6NitpW','vasil.vazonov@abv.bg','Vasko','Vazonov','2022-10-25 14:03:01');
+INSERT INTO `accounts` VALUES (1,'personal',1,1,17000),(2,'personal',1,2,22300);
 

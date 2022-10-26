@@ -29,14 +29,15 @@ public class TransferDAO {
                 initialSelectWithFromYourAccount(toAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
                         toAmount, currencies, sb);
             }
-            case "sent" ->
-                    initialSelectWithFromYourAccount(toAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
-                            toAmount, currencies, sb);
+            case "sent" -> initialSelectWithFromYourAccount(toAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
+                    toAmount, currencies, sb);
             case "received" ->
                     initialSelectWithToYourAccount(fromAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
                             toAmount, currencies, sb);
+
             default -> throw new IllegalStateException("Unexpected value: " + choice);
         }
+        sb.append(" ORDER BY date_of_transfer DESC");
         // todo remove sout
         System.out.println(sb.toString());
         return jdbcTemplate.query(
@@ -49,83 +50,89 @@ public class TransferDAO {
                         accountService.getAccountById(rs.getInt("to_user_account_id")),
                         rs.getTimestamp("date_of_transfer").toLocalDateTime()));
     }
+
     private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
                                                   LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                   double toAmount, List<Long> currencies, StringBuilder sb) {
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer FROM transfers WHERE");
-        // if toAccountsIds is empty, then we don't need to add it to where
         sb.append(" from_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
         } else {
-            appendFromAccount(ownAccountsIds, sb);
+            appendAccounts(ownAccountsIds, sb);
         }
-        // if toAccountsIds is empty, then we don't need to add it to where
-        sb.append(" AND to_user_account_id");
-        if (toAccountsIds.size() == 1) {
-            sb.append(" = ").append(toAccountsIds.get(0));
-        } else {
-            appendToAccount(toAccountsIds, sb);
+        if (toAccountsIds.size() != 0) {
+            sb.append(" AND to_user_account_id");
+            if (toAccountsIds.size() == 1) {
+                sb.append(" = ").append(toAccountsIds.get(0));
+            } else {
+                appendAccounts(toAccountsIds, sb);
+            }
         }
         appendCurrencyAndDate(fromDate, toDate, fromAmount, toAmount, currencies, sb);
     }
+
     private void initialSelectWithToYourAccount(List<Long> fromAccountsIds, List<Long> ownAccountsIds,
                                                 LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                 double toAmount, List<Long> currencies, StringBuilder sb) {
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer FROM transfers WHERE");
-        // if fromAccountsIds is empty, then we don't need to add it to where
         sb.append(" to_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
         } else {
-            appendToAccount(ownAccountsIds, sb);
+            appendAccounts(ownAccountsIds, sb);
         }
-        // if fromAccountsIds is empty, then we don't need to add it to where
-        sb.append(" AND from_user_account_id");
-        if (fromAccountsIds.size() == 1) {
-            sb.append(" = ").append(fromAccountsIds.get(0));
-        } else {
-            appendFromAccount(fromAccountsIds, sb);
+        if (fromAccountsIds.size() != 0) {
+            sb.append(" AND from_user_account_id");
+            if (fromAccountsIds.size() == 1) {
+                sb.append(" = ").append(fromAccountsIds.get(0));
+            } else {
+                appendAccounts(fromAccountsIds, sb);
+            }
         }
         appendCurrencyAndDate(fromDate, toDate, fromAmount, toAmount, currencies, sb);
     }
-    private static void appendFromAccount(List<Long> fromAccountsIds, StringBuilder sb) {
+
+    private static void appendAccounts(List<Long> accountIds, StringBuilder sb) {
         sb.append(" IN {");
-        for (int i = 0; i < fromAccountsIds.size(); i++) {
-            sb.append(fromAccountsIds.get(i));
-            if (i < fromAccountsIds.size() - 1) {
+        for (int i = 0; i < accountIds.size(); i++) {
+            sb.append(accountIds.get(i));
+            if (i < accountIds.size() - 1) {
                 sb.append(",");
             }
         }
         sb.append("}");
     }
-    private void appendToAccount(List<Long> toAccountsIds, StringBuilder sb) {
-        sb.append(" IN {");
-        for (int i = 0; i < toAccountsIds.size(); i++) {
-            sb.append(toAccountsIds.get(i));
-            if (i < toAccountsIds.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append("}");
-    }
+
     private void appendCurrencyAndDate(LocalDate fromDate, LocalDate toDate, double fromAmount,
                                        double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append(" AND currency_id");
-        if (currencies.size() == 1) {
-            sb.append(" = ").append(currencies.get(0));
-        } else {
-            for (int i = 0; i < currencies.size(); i++) {
-                sb.append(currencies.get(i));
-                if (i < currencies.size() - 1) {
-                    sb.append(",");
+        if (currencies.size() != 0) {
+            sb.append(" AND currency_id");
+            if (currencies.size() == 1) {
+                sb.append(" = ").append(currencies.get(0));
+            } else {
+                for (int i = 0; i < currencies.size(); i++) {
+                    sb.append(currencies.get(i));
+                    if (i < currencies.size() - 1) {
+                        sb.append(",");
+                    }
                 }
+                sb.append("}");
             }
-            sb.append("}");
+        }
+        if (fromDate == null) {
+            fromDate = LocalDate.of(1970, 1, 1);
+        }
+        if (toDate == null) {
+            toDate = LocalDate.now();
         }
         sb.append(" AND CAST(date_of_transfer AS DATE) BETWEEN \"").append(fromDate).append("\" AND \"")
                 .append(toDate).append("\"");
+
+        if (toAmount == 0) {
+            toAmount = Double.MAX_VALUE;
+        }
+
         sb.append(" AND amount BETWEEN ").append(fromAmount).append(" AND ").append(toAmount);
-        sb.append(" ORDER BY date_of_transfer DESC");
     }
 }
