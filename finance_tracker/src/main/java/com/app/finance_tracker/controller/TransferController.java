@@ -102,9 +102,10 @@ public class TransferController extends AbstractController {
         return currencyExchangeService.getExchangedCurrency(from,to,amount);
     }
     @SneakyThrows
-    @GetMapping("/transfers/downloadPdf")
-    public @ResponseBody byte[] downloadPdf(HttpServletRequest request , HttpServletResponse response){
-        byte[] asd = transferService.downloadPdf(response);
+    @PostMapping("/transfers/downloadPdf")
+    public @ResponseBody byte[] downloadPdf(HttpServletRequest request , HttpServletResponse response, @RequestBody TransferFilteredDto filteredDto){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        byte[] asd = transferService.downloadPdf(response, filteredDto, userId);
 
         return  asd;
     }

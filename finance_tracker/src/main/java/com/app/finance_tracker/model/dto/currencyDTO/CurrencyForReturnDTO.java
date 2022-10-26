@@ -6,6 +6,9 @@ import lombok.Data;
 @Data
 public class CurrencyForReturnDTO {
     private long id;
-    private String abbreviation;
-    private String full_name;
+    private String code;
+    private String name;
+    private String symbol;
+    private String namePlural;
+
 }
