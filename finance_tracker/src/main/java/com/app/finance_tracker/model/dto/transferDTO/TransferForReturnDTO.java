@@ -30,6 +30,7 @@ public class TransferForReturnDTO {
         sb.append(", receiver :").append(receiver);
         sb.append(", sender : ").append(sender);
         sb.append(", date : ").append(date.format(formatter));
+        sb.append("\n description: \n"+ description);
         return sb.toString();
     }
 }

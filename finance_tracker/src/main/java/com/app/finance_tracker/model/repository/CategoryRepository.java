@@ -22,4 +22,6 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     List<Category> findAllByUserId(long userId);
 
     List<Category> findAllByUserIsNull();
+
+    List<Category> findAllByUserIsNullOrUserId(long userId);
 }

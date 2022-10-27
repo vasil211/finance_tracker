@@ -18,4 +18,5 @@ public class CreateBudgetDto {
     private long userId;
     private long categoryId;
     private long currencyId;
+    private double originalBudget;
 }

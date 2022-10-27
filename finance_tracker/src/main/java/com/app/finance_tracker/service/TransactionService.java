@@ -1,5 +1,8 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.dao.TransactionDAO;
+import com.app.finance_tracker.model.dao.TransferDAO;
+import com.app.finance_tracker.model.dto.transactionDTO.TransactionFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
@@ -11,11 +14,26 @@ import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Transaction;
 import com.app.finance_tracker.model.repository.*;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.SneakyThrows;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +50,7 @@ public class TransactionService extends AbstractService{
 
     @Autowired
     private BudgetRepository budgetRepository;
+
 
     private boolean validateCategory(long categoryId) {
         return categoryRepository.existsById(categoryId);
@@ -60,9 +79,9 @@ public class TransactionService extends AbstractService{
         return transactions;
     }
 
-    public List<TransactionReturnDto> getAllByUserIdAfterDate(long userId,Date date) {
+    public List<TransactionReturnDto> getAllByUserIdAfterDate(long userId, LocalDate date) {
         List<TransactionReturnDto> list = getAllByUserId(userId).stream()
-                .filter(t -> t.getCreatedAt().after(date))
+                .filter(t -> t.getCreatedAt().isAfter(ChronoLocalDateTime.from(date)))
                 .toList();
 
         return list;
@@ -113,7 +132,7 @@ public class TransactionService extends AbstractService{
         transaction.setAmount(transactionDto.getAmount());
         transaction.setCategory(category);
         transaction.setDescription(transactionDto.getDescription());
-        transaction.setCreatedAt(Date.from(Instant.now()));
+        transaction.setCreatedAt(LocalDateTime.now());
         return transaction;
     }
 
@@ -131,5 +150,54 @@ public class TransactionService extends AbstractService{
             throw new UnauthorizedException("no access to this transaction");
         }
         return modelMapper.map(transaction,TransactionReturnDto.class);
+    }
+
+    public List<TransactionReturnDto> getFilteredTransactions(long userId, TransactionFilteredDto transactionFilteredDto) {
+        List<Long> ownAccounts = transactionFilteredDto.getAccountIds();
+        List<Long> wantedCategories = transactionFilteredDto.getCategoryIds();
+        if (ownAccounts.size()==0){
+            ownAccounts= accountRepository.findAllByUserId(userId).stream().map(a -> a.getId()).toList();
+        }
+        /*if (wantedCategories.size()==0){
+            wantedCategories = categoryRepository.findAllByUserIsNullOrUserId(userId).stream().map(c -> c.getId()).toList();
+        }*/
+        List<Transaction> transactions = transactionDAO.getFilteredTransactions(ownAccounts,transactionFilteredDto.getFromAmount(),
+                transactionFilteredDto.getToAmount(),transactionFilteredDto.getFromDate(),
+                transactionFilteredDto.getToDate(),wantedCategories);
+
+        List<TransactionReturnDto> result = new ArrayList<>();
+        for (Transaction transaction : transactions){
+            result.add(modelMapper.map(transaction,TransactionReturnDto.class));
+        }
+        return result;
+    }
+    @SneakyThrows
+    public byte[] exportPdf(long userId, TransactionFilteredDto filteredDto, HttpServletResponse response) {
+        List<TransactionReturnDto> transactions = getFilteredTransactions(userId,filteredDto);
+        Document document = new Document();
+        PdfWriter.getInstance(document,new FileOutputStream("dataOutput.pdf"));
+        document.open();
+        Font font = FontFactory.getFont(FontFactory.HELVETICA,14, BaseColor.BLACK);
+        for (TransactionReturnDto data: transactions) {
+            String str = data.toString();
+            document.add(new Paragraph("\n"));
+            Chunk chunk = new Chunk(str, font);
+            document.add(chunk);
+        }
+
+        document.close();
+
+        File f = new File("dataOutput.pdf");
+        if (!f.exists()) {
+            throw new NotFoundException("File does not exist!");
+        }
+        /*DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD:HH:MM:SS");
+        String currentDateTime = dateFormat.format(new Date());*/
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename="+f.getName());
+        response.setContentLength((int) f.length());
+        byte[] bytes = IOUtils.toByteArray(new FileInputStream(f));
+        System.out.println(f.delete());
+        return bytes;
     }
 }

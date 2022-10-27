@@ -79,7 +79,7 @@ public class TransferService extends AbstractService {
         accountRepository.save(receiver);
         Transfer transfer = new Transfer();
         transfer.setAmount(amount);
-        transfer.setCurrency(sender.getCurrency());
+        transfer.setCurrency(receiver.getCurrency());
         transfer.setReceiver(receiver);
         transfer.setSender(sender);
         transfer.setDate(LocalDateTime.now());

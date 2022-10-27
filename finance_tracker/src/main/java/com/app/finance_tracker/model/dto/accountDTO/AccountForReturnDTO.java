@@ -16,4 +16,13 @@ public class AccountForReturnDTO {
     private String name;
     private CurrencyForReturnDTO currency;
     private double balance;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("id: ").append(id);
+        sb.append(", name: ").append(name).append('\n');
+        sb.append(currency);
+        return sb.toString();
+    }
 }

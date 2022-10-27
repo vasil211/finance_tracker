@@ -11,4 +11,10 @@ public class CurrencyForReturnDTO {
     private String symbol;
     private String namePlural;
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("code: ").append(code).append('\n');
+        return sb.toString();
+    }
 }

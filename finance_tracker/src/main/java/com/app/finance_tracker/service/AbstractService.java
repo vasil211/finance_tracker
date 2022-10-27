@@ -1,5 +1,6 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.dao.TransactionDAO;
 import com.app.finance_tracker.model.dao.TransferDAO;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.*;
@@ -43,6 +44,9 @@ public abstract class AbstractService {
     @Autowired
     protected TransferDAO transferDAO;
 
+    @Autowired
+    protected TransactionDAO transactionDAO;
+
     protected Budget getBudgetById(long id){
         Budget budget = budgetRepository
                 .findById(id)
@@ -50,7 +54,7 @@ public abstract class AbstractService {
         return budget;
     }
 
-    protected Category getCategoryById(long id) {
+    public Category getCategoryById(long id) {
         Category category = categoryRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("category not found"));
