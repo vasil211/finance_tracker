@@ -8,6 +8,7 @@ import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentRes
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.ScheduledPayment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -79,5 +80,12 @@ public class ScheduledPaymentService extends AbstractService{
         setFields(scheduledPaymentEditDto,scheduledPayment);
         scheduledPaymentRepository.save(scheduledPayment);
         return modelMapper.map(scheduledPayment,ScheduledPaymentResponseDto.class);
+    }
+
+    //create method to send email on day of scheduled payment
+    @Scheduled(cron = "0 9 * * * *")
+    public void doScheduledPayment(){
+        //List<ScheduledPayment> list..
+
     }
 }

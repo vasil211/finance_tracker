@@ -54,8 +54,7 @@ public class TransferDAO {
     private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
                                                   LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                   double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description " +
-                "FROM transfers WHERE");
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description FROM transfers WHERE");
         sb.append(" from_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
@@ -119,7 +118,7 @@ public class TransferDAO {
                         sb.append(",");
                     }
                 }
-                sb.append("}");
+                sb.append(")");
             }
         }
         if (fromDate == null) {
