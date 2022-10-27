@@ -30,4 +30,7 @@ public class Account {
     public void removeFromBalance(double amount) {
         this.balance-= amount;
     }
+    public void increaseBalance(double amount){
+        this.balance=amount;
+    }
 }

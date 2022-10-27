@@ -8,7 +8,7 @@ import lombok.Data;
 public class TransferDTO {
     private long id;
     private double amount;
-    private long currencyId;
     private long senderAccountId;
     private long receiverAccountId;
+    private String description;
 }
