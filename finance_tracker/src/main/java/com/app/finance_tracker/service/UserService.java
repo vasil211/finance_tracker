@@ -58,4 +58,11 @@ public class UserService extends AbstractService {
                 .map(user -> modelMapper.map(user, UserWithoutPasswordDTO.class))
                 .toList();
     }
+
+    public void sendEmails() {
+        List<User> users = userRepository.findAllWhereLastLoginIsBefore(LocalDateTime.now().minusDays(5));
+        String subject = "Finance Tracker";
+        String text = "You haven't logged in for 5 days. Please log in to your account.";
+        users.forEach(user -> emailService.sendSimpleMessage(user.getEmail(), subject, text));
+    }
 }

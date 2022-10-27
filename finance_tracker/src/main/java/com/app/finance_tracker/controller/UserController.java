@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,25 +64,21 @@ public class UserController extends AbstractController {
     @GetMapping("/users")
     public ResponseEntity<List<UserWithoutPasswordDTO>> getAllUsers(HttpServletRequest request) {
         checkIfLogged(request);
-        // todo do we need to return all users?
         List<UserWithoutPasswordDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-    // todo: return user by username
-    // todo: return user by first and last name
 
-//    @Scheduled(cron = "0 0 9 * * 1")
-//    @Scheduled(fixedRate = 5000)
-//    public void sendEmail() {
-//        // send email to user who hasn't logged in for 5 days
-//        System.out.println("Sending email...");
-//    }
 
-    //ADDED ALL CURRENCIES
-    @Autowired
-    private CurrencyRepository currencyRepository;
-    @PostMapping("/currencies")
-    public void addCurrencies(@RequestBody List<Currency> currencies){
-        currencyRepository.saveAll(currencies);
+    @Scheduled(cron = "0 9 * * *")
+    public void sendEmail() {
+        userService.sendEmails();
     }
+
+
+//    @Autowired
+//    private CurrencyRepository currencyRepository;
+//    @PostMapping("/currencies")
+//    public void addCurrencies(@RequestBody List<Currency> currencies){
+//        currencyRepository.saveAll(currencies);
+//    }
 }
