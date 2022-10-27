@@ -38,6 +38,7 @@ public class TransferDAO {
             default -> throw new IllegalStateException("Unexpected value: " + choice);
         }
         sb.append(" ORDER BY date_of_transfer DESC");
+        System.out.println(sb.toString());
         return jdbcTemplate.query(
                 sb.toString(),
                 (rs, rowNum) -> new Transfer(
@@ -53,7 +54,8 @@ public class TransferDAO {
     private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
                                                   LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                   double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer FROM transfers WHERE");
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description " +
+                "FROM transfers WHERE");
         sb.append(" from_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
@@ -74,7 +76,8 @@ public class TransferDAO {
     private void initialSelectWithToYourAccount(List<Long> fromAccountsIds, List<Long> ownAccountsIds,
                                                 LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                 double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer FROM transfers WHERE");
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description" +
+                " FROM transfers WHERE");
         sb.append(" to_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
@@ -93,14 +96,14 @@ public class TransferDAO {
     }
 
     private static void appendAccounts(List<Long> accountIds, StringBuilder sb) {
-        sb.append(" IN {");
+        sb.append(" IN (");
         for (int i = 0; i < accountIds.size(); i++) {
             sb.append(accountIds.get(i));
             if (i < accountIds.size() - 1) {
                 sb.append(",");
             }
         }
-        sb.append("}");
+        sb.append(")");
     }
 
     private void appendCurrencyAndDate(LocalDate fromDate, LocalDate toDate, double fromAmount,

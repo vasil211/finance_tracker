@@ -15,8 +15,10 @@ CREATE TABLE users (
 
 CREATE TABLE currencies (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    abbreviation VARCHAR(5) NOT NULL,
-    full_name VARCHAR(25) NOT NULL
+    code VARCHAR(5) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL,
+    symbol VARCHAR(5) NOT NULL,
+    name_plural VARCHAR(50) NOT NULL
 );
 CREATE TABLE accounts (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,6 +50,7 @@ CREATE TABLE categories (
 CREATE TABLE budgets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     amount DOUBLE NOT NULL,
+    original_budget DOUBLE NOT NULL,
     user_id INT NOT NULL,
     category_id INT NOT NULL,
     currency_id INT NOT NULL,
@@ -109,3 +112,9 @@ INSERT INTO `users` VALUES (1,'martok11','$2a$10$os.ZipCPVC.vDcvaRq89pupmkqMMCTX
 (2,'vasil1122','$2a$10$mIUHELmoEnv9.ZH8Y.IiyOxd3ERsMKKihZYUqUerjEgfqYC6NitpW','vasil.vazonov@abv.bg','Vasko','Vazonov','2022-10-25 14:03:01');
 INSERT INTO `accounts` VALUES (1,'personal',1,1,17000),(2,'personal',1,2,22300);
 
+INSERT INTO `transfers` VALUES (1,600,1,2,1,'2022-10-23 22:17:13',NULL),
+(2,600,1,2,1,'2022-10-23 22:17:31',NULL),
+(3,600,1,2,1,'2022-10-23 22:19:16',NULL),
+(4,600,1,2,1,'2022-10-23 22:22:12',NULL),
+(7,600,1,2,1,'2022-10-23 22:27:09',NULL),
+(8,300,1,1,2,'2022-10-23 22:43:43',NULL);

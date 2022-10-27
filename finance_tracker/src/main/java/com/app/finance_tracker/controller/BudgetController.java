@@ -38,11 +38,10 @@ public class BudgetController extends AbstractController {
         return ResponseEntity.ok(budget);
     }
 
-    @PutMapping("/budgets/{id}")
-    public ResponseEntity<BudgetReturnDto> editBudget( @RequestBody EditBudgetDto budgetDto,
-                                                               @PathVariable long id,HttpServletRequest request){
-        checkIfLogged(request);
-        BudgetReturnDto budget = this.budgetService.editBudget(id,budgetDto);
+    @PutMapping("/budgets")
+    public ResponseEntity<BudgetReturnDto> editBudget( @RequestBody EditBudgetDto budgetDto, HttpServletRequest request){
+        long userId = checkIfLoggedAndReturnUserId(request);
+        BudgetReturnDto budget = this.budgetService.editBudget(budgetDto,userId);
         return ResponseEntity.ok(budget);
     }
 
