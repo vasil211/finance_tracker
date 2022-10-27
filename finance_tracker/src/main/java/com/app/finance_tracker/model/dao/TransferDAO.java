@@ -38,7 +38,6 @@ public class TransferDAO {
             default -> throw new IllegalStateException("Unexpected value: " + choice);
         }
         sb.append(" ORDER BY date_of_transfer DESC");
-
         return jdbcTemplate.query(
                 sb.toString(),
                 (rs, rowNum) -> new Transfer(
