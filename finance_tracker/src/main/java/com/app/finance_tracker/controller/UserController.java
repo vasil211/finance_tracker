@@ -69,7 +69,7 @@ public class UserController extends AbstractController {
     }
 
 
-    @Scheduled(cron = "0 9 * * *")
+    @Scheduled(cron = "0 9 * * * *")
     public void sendEmail() {
         userService.sendEmails();
     }

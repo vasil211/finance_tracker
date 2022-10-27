@@ -38,8 +38,6 @@ public class TransferDAO {
             default -> throw new IllegalStateException("Unexpected value: " + choice);
         }
         sb.append(" ORDER BY date_of_transfer DESC");
-        // todo remove sout
-        System.out.println(sb.toString());
         return jdbcTemplate.query(
                 sb.toString(),
                 (rs, rowNum) -> new Transfer(
@@ -48,7 +46,8 @@ public class TransferDAO {
                         accountService.getCurrencyById(rs.getInt("currency_id")),
                         accountService.getAccountById(rs.getInt("from_user_account_id")),
                         accountService.getAccountById(rs.getInt("to_user_account_id")),
-                        rs.getTimestamp("date_of_transfer").toLocalDateTime()));
+                        rs.getTimestamp("date_of_transfer").toLocalDateTime(),
+                        rs.getString("description")));
     }
 
     private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
