@@ -72,14 +72,14 @@ public class TransactionController extends AbstractController {
         List<TransactionReturnDto> list = transactionService.getAllByUserIdAfterDate(userId,date);
         return new ResponseEntity<>(list,HttpStatus.OK);
     }*/
-    @GetMapping("/transactions/filtered")
+    @PostMapping("/transactions/filtered")
     public ResponseEntity<List<TransactionReturnDto>> getFilteredTransactions(@RequestBody TransactionFilteredDto transactionFilteredDto, HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransactionReturnDto> list = transactionService.getFilteredTransactions(userId,transactionFilteredDto);
         return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
-    @GetMapping("/transactions/download")
+    @PostMapping("/transactions/download")
     public ResponseEntity<String> downloadTransactionsPdf(@RequestBody TransactionFilteredDto filteredDto, HttpServletRequest request, HttpServletResponse response){
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransactionReturnDto> transactions = transactionService.getFilteredTransactions(userId,filteredDto);

@@ -76,19 +76,6 @@ public class TransferController extends AbstractController {
         List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfersFromAccount(id, fromId, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
-
-    // get all with filter by date
-    /*@GetMapping("accounts/{id}/transfers/filter")
-    public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersWithFilter(@PathVariable long id,
-                                                                                @RequestParam("from_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDte,
-                                                                                @RequestParam("to_date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
-                                                                                @RequestParam("from_amount") double fromAmount,@RequestParam("to_amount") double toAmount,
-                                                                                HttpServletRequest request) {
-        checkIfLogged(request);
-        checkIfAccountBelongsToUser(id, request);
-        List<TransferForReturnDTO> transfer = transferService.getAllSentTransfersFiltered(id, fromDte, toDate,fromAmount,toAmount);
-        return new ResponseEntity<>(transfer, HttpStatus.OK);
-    }*/
     @GetMapping("/users/transfers/filtered")
     public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersFiltered(HttpServletRequest request, @RequestBody TransferFilteredDto filteredDto){
         long id = checkIfLoggedAndReturnUserId(request);

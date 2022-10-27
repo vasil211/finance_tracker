@@ -38,6 +38,7 @@ public class TransferDAO {
             default -> throw new IllegalStateException("Unexpected value: " + choice);
         }
         sb.append(" ORDER BY date_of_transfer DESC");
+        System.out.println(sb.toString());
         return jdbcTemplate.query(
                 sb.toString(),
                 (rs, rowNum) -> new Transfer(
@@ -53,7 +54,12 @@ public class TransferDAO {
     private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
                                                   LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                   double toAmount, List<Long> currencies, StringBuilder sb) {
+<<<<<<< HEAD
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description FROM transfers WHERE");
+=======
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description " +
+                "FROM transfers WHERE");
+>>>>>>> refs/remotes/origin/main
         sb.append(" from_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));
@@ -74,7 +80,12 @@ public class TransferDAO {
     private void initialSelectWithToYourAccount(List<Long> fromAccountsIds, List<Long> ownAccountsIds,
                                                 LocalDate fromDate, LocalDate toDate, double fromAmount,
                                                 double toAmount, List<Long> currencies, StringBuilder sb) {
+<<<<<<< HEAD
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description FROM transfers WHERE");
+=======
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description" +
+                " FROM transfers WHERE");
+>>>>>>> refs/remotes/origin/main
         sb.append(" to_user_account_id");
         if (ownAccountsIds.size() == 1) {
             sb.append(" = ").append(ownAccountsIds.get(0));

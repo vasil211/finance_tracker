@@ -29,16 +29,16 @@ public class BudgetService extends AbstractService {
     @Autowired
     private BudgetRepository budgetRepository;
 
-    public BudgetReturnDto editBudget(long id, EditBudgetDto budgetDto) {
+    public BudgetReturnDto editBudget(EditBudgetDto budgetDto, long userId) {
+        Budget budget = getBudgetById(budgetDto.getId());
+        if (budget.getUser().getId() != userId) {
+            throw new UnauthorizedException("No access to this.");
+        }
         if (!isValidAmount(budgetDto.getAmount())) {
             throw new InvalidArgumentsException("budget should be higher than 0");
         }
         if (!budgetValidation.validDate(budgetDto.getFromDate(), budgetDto.getToDate())) {
             throw new InvalidArgumentsException("to date cant be after from date");
-        }
-        Budget budget = getBudgetById(id);
-        if (budget.getUser().getId() != budgetDto.getUserId()) {
-            throw new UnauthorizedException("No access to this.");
         }
         if (budget.getCategory().getId() != budgetDto.getCategoryId()) {
             Category wantedCategory = getCategoryById(budgetDto.getCategoryId());
