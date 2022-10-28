@@ -19,12 +19,12 @@ public class UserService extends AbstractService {
     private PasswordEncoder encoder;
 
     public User loginUser(UserLoginDTO userDTO) {
-        if(!userValidation.validateUsername(userDTO.getUsername())){
+        if (!userValidation.validateUsername(userDTO.getUsername())) {
             throw new InvalidArgumentsException("Invalid credentials");
         }
         User user = userRepository.findByUsername(userDTO.getUsername())
                 .orElseThrow(() -> new InvalidArgumentsException("Invalid credentials"));
-        if(!encoder.matches(userDTO.getPassword(), user.getPassword())){
+        if (!encoder.matches(userDTO.getPassword(), user.getPassword())) {
             throw new InvalidArgumentsException("Invalid credentials");
         }
         user.setLastLogin(LocalDateTime.now());
@@ -62,7 +62,13 @@ public class UserService extends AbstractService {
     public void sendEmails() {
         List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
         String subject = "Finance Tracker";
-        String text = "You haven't logged in for 5 days. Please log in to your account.";
-        users.forEach(user -> emailService.sendSimpleMessage(user.getEmail(), subject, text));
+        for (User user : users) {
+            long days = LocalDateTime.now().getDayOfYear() - user.getLastLogin().getDayOfYear();
+            String text = "Hello " + user.getFirstName() + " " + user.getLastName() + ",\n" +
+                    "You haven't logged in for " + days + " days. We hope you are doing well.\n" +
+                    "Best regards,\n" +
+                    "Finance Tracker Team";
+            emailService.sendSimpleMessage(user.getEmail(), subject, text);
+        }
     }
 }

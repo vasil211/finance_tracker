@@ -105,8 +105,16 @@ CREATE TABLE scheduled_payments (
         REFERENCES accounts (id)
 );
 
-insert into icons(url) values("istock-500593292-1bb78a1e79717b7a2ac14dc9edf99cc71723d261-s1100-c50.jpg");
-insert into categories(name,icon_id) values("plant",1);
+insert into icons(url) values("20254611317500-112.jpg");
+insert into categories(name,icon_id) values("Plant",1);
+insert into icons(url) values("20254611317200-412.jfif");
+insert into categories(name,icon_id) values("Car",2);
+insert into icons(url) values("20275177307500-87.jpg");
+insert into categories(name,icon_id) values("Pet",3);
+insert into icons(url) values("20323496383400-126.jfif");
+insert into categories(name,icon_id) values("Food",4);
+insert into icons(url) values("20336031736200-821.jpg");
+insert into categories(name,icon_id) values("House",1);
 
 INSERT INTO `users` VALUES (1,'martok11','$2a$10$os.ZipCPVC.vDcvaRq89pupmkqMMCTXlhoCUes79/rlfRJG2C.b4S','lukasz6@abv.bg','Martin','Kuyumdjiev','2022-10-23 23:07:21'),
 (2,'vasil1122','$2a$10$mIUHELmoEnv9.ZH8Y.IiyOxd3ERsMKKihZYUqUerjEgfqYC6NitpW','vasil.vazonov@abv.bg','Vasko','Vazonov','2022-10-25 14:03:01');
