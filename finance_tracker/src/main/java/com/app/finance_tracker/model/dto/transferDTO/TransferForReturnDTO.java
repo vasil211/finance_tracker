@@ -1,21 +1,18 @@
 package com.app.finance_tracker.model.dto.transferDTO;
 
-import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForTransferDTO;
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserForTransferDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Formatter;
-import java.util.StringJoiner;
 
 @Data
 public class TransferForReturnDTO {
     private long id;
     private double amount;
-    private CurrencyForTransferDTO currency;
+    private CurrencyForReturnDTO currency;
     private UserForTransferDTO receiver;
     private UserForTransferDTO sender;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")

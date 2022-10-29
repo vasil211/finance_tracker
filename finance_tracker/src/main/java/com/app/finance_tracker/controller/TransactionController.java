@@ -82,19 +82,7 @@ public class TransactionController extends AbstractController {
     @PostMapping("/transactions/download")
     public ResponseEntity<String> downloadTransactionsPdf(@RequestBody TransactionFilteredDto filteredDto, HttpServletRequest request, HttpServletResponse response){
         long userId = checkIfLoggedAndReturnUserId(request);
-        List<TransactionReturnDto> transactions = transactionService.getFilteredTransactions(userId,filteredDto);
-        //transactionService.exportPdf(transactions,response);
-        /*response.setContentType("application/pdf");
-        DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD:HH:MM:SS");
-        String currentDateTime = dateFormat.format(new Date());
-        String headerKey = "Content-Disposition";
-        String headerValue = "attachment; filename=student" + currentDateTime + ".pdf";
-        response.setHeader(headerKey, headerValue);*/
-
-        //return transactionService.exportPdf(userId,filteredDto,response);
-        PdfGenerator generator = new PdfGenerator();
-
-        generator.generatePdfFile(transactions,response);
+        transactionService.downloadTransactionsPdf(userId,filteredDto,response);
         return new ResponseEntity<>("Download successful",HttpStatus.OK);
     }
 }

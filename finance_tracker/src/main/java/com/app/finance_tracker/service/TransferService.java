@@ -1,39 +1,25 @@
 package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
-import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForTransferDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferDTO;
 import com.app.finance_tracker.model.dto.transferDTO.TransferForReturnDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserForTransferDTO;
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.entities.Transfer;
-import com.app.finance_tracker.model.exceptions.NotFoundException;
-import com.itextpdf.text.*;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.app.finance_tracker.model.utility.PdfGenerator;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class TransferService extends AbstractService {
@@ -134,7 +120,7 @@ public class TransferService extends AbstractService {
         TransferForReturnDTO transferForReturnDTO = new TransferForReturnDTO();
         transferForReturnDTO.setId(transfer.getId());
         transferForReturnDTO.setAmount(transfer.getAmount());
-        transferForReturnDTO.setCurrency(modelMapper.map(transfer.getCurrency(), CurrencyForTransferDTO.class));
+        transferForReturnDTO.setCurrency(modelMapper.map(transfer.getCurrency(), CurrencyForReturnDTO.class));
         transferForReturnDTO.setReceiver(modelMapper.map(transfer.getReceiver().getUser(), UserForTransferDTO.class));
         transferForReturnDTO.setSender(modelMapper.map(transfer.getSender().getUser(), UserForTransferDTO.class));
         transferForReturnDTO.setDate(transfer.getDate());
@@ -175,31 +161,16 @@ public class TransferService extends AbstractService {
     @SneakyThrows
     public void downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
         List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);
-
-        generatePdfFile(transfers, resp);
-        Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream("dataOutput.pdf"));
-        document.open();
-        Font font = FontFactory.getFont(FontFactory.COURIER, 12, BaseColor.BLACK);
+        Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
         for (TransferForReturnDTO transfer : transfers) {
-            String str = transfer.toString();
-            document.add(new Paragraph("\n"));
-            Chunk chunk = new Chunk(str, font);
-            document.add(chunk);
-            System.out.println(transfer.toString());
+            if (totalAmounts.containsKey(transfer.getCurrency())) {
+                totalAmounts.put(transfer.getCurrency(), totalAmounts.get(transfer.getCurrency())
+                        + transfer.getAmount());
+            } else {
+                totalAmounts.put(transfer.getCurrency(), transfer.getAmount());
+            }
         }
-
-        document.close();
-        File f = new File("dataOutput.pdf");
-        if (!f.exists()) {
-            throw new NotFoundException("File does not exist!");
-        }
-        resp.setContentType("application/pdf");
-        resp.setHeader("Content-Disposition", "attachment; filename=" + f.getName());
-        resp.setContentLength((int) f.length());
-        byte[] bytes = IOUtils.toByteArray(new FileInputStream(f));
-        System.out.println(f.delete());
-        return bytes;
-
+        PdfGenerator<TransferForReturnDTO> generator = new PdfGenerator<>();
+        generator.generatePdfFile(transfers, resp, totalAmounts);
     }
 }

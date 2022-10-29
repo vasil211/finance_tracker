@@ -21,14 +21,14 @@ public class TransactionReturnDto {
     private LocalDateTime createdAt;
     private String description;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         StringBuilder sb = new StringBuilder();
-        sb.append("account: ").append(account)
+        sb.append("account: ").append(account.getName()).append('\n')
         .append("amount: ").append(amount).append(account.getCurrency().getSymbol()).append('\n')
-        .append("category: ").append(category).append('\n')
-        .append("createdAt: ").append(createdAt.format(formatter)).append("\n")
+        .append("category: ").append(category.getName()).append('\n')
+        .append("created at: ").append(createdAt.format(formatter)).append("\n")
         .append("description: ").append(description);
         return sb.toString();
 

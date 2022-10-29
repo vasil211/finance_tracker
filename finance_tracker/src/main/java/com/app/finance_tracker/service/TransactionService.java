@@ -1,5 +1,7 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
@@ -12,6 +14,7 @@ import com.app.finance_tracker.model.entities.Budget;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.Transaction;
 import com.app.finance_tracker.model.repository.*;
+import com.app.finance_tracker.model.utility.PdfGenerator;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +31,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TransactionService extends AbstractService{
@@ -157,33 +162,19 @@ public class TransactionService extends AbstractService{
         }
         return result;
     }
-    @SneakyThrows
-    public byte[] exportPdf(long userId, TransactionFilteredDto filteredDto, HttpServletResponse response) {
+
+    public void downloadTransactionsPdf(long userId, TransactionFilteredDto filteredDto, HttpServletResponse response) {
         List<TransactionReturnDto> transactions = getFilteredTransactions(userId,filteredDto);
-        Document document = new Document();
-        PdfWriter.getInstance(document,new FileOutputStream("dataOutput.pdf"));
-        document.open();
-        Font font = FontFactory.getFont(FontFactory.HELVETICA,14, BaseColor.BLACK);
-        for (TransactionReturnDto data: transactions) {
-            String str = data.toString();
-            document.add(new Paragraph("\n"));
-            Chunk chunk = new Chunk(str, font);
-            document.add(chunk);
+        Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
+        for (TransactionReturnDto transaction : transactions) {
+            if (totalAmounts.containsKey(transaction.getAccount().getCurrency())) {
+                totalAmounts.put(transaction.getAccount().getCurrency(),
+                        totalAmounts.get(transaction.getAccount().getCurrency()) + transaction.getAmount());
+            }else {
+                totalAmounts.put(transaction.getAccount().getCurrency(),transaction.getAmount());
+            }
         }
-
-        document.close();
-
-        File f = new File("dataOutput.pdf");
-        if (!f.exists()) {
-            throw new NotFoundException("File does not exist!");
-        }
-        /*DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD:HH:MM:SS");
-        String currentDateTime = dateFormat.format(new Date());*/
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename="+f.getName());
-        response.setContentLength((int) f.length());
-        byte[] bytes = IOUtils.toByteArray(new FileInputStream(f));
-        System.out.println(f.delete());
-        return bytes;
+        PdfGenerator<TransactionReturnDto> generator = new PdfGenerator<>();
+        generator.generatePdfFile(transactions,response, totalAmounts);
     }
 }

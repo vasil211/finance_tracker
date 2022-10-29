@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name  = "categories")
+
 public class Category {
 
     @Id
@@ -19,4 +20,6 @@ public class Category {
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
+
+
 }
