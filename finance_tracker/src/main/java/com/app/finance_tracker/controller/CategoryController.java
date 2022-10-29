@@ -4,6 +4,7 @@ import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.dto.MessageDTO;
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
 import com.app.finance_tracker.service.CategoryService;
+import com.app.finance_tracker.service.IconService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
@@ -23,27 +24,29 @@ public class CategoryController extends AbstractController {
 
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private IconService iconService;
 
-    @GetMapping("/category/getAll")
+    @GetMapping("/categories")
     public ResponseEntity<List<CategoryForReturnDTO>> getAllCategories(HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         List<CategoryForReturnDTO> categories = categoryService.getAllCategories(userId);
         return ResponseEntity.ok(categories);
     }
 
-    @GetMapping("/category/{id}")
+    @GetMapping("/categories/{id}")
     public ResponseEntity<CategoryForReturnDTO> getCategoryById(@PathVariable long id){
         CategoryForReturnDTO category = categoryService.getCategoryForReturnDTOById(id);
         return ResponseEntity.ok(category);
     }
-    @GetMapping("/categoryByName/{name}")
+    @GetMapping("/categories/{name}")
     public ResponseEntity<CategoryForReturnDTO> getCategoryById(@PathVariable String name, HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
         CategoryForReturnDTO category = categoryService.getCategoryByName(name, userId);
         return ResponseEntity.ok(category);
     }
 
-    @PostMapping("/category")
+    @PostMapping("/categories")
     public ResponseEntity<CategoryForReturnDTO> addNewCategory(@RequestParam(value = "file") MultipartFile file,
                                                                @RequestParam(value = "name") String name,
                                                                HttpServletRequest request){
@@ -52,7 +55,7 @@ public class CategoryController extends AbstractController {
         return ResponseEntity.ok(category);
     }
 
-   @PutMapping("/category/{id}")
+   @PutMapping("/categories/{id}")
     public ResponseEntity<CategoryForReturnDTO> updateCategory(@RequestParam(value = "file") MultipartFile file,
                                                                @RequestParam(value = "name") String name,
                                                                 @PathVariable(value = "id") long categoryId,
@@ -62,17 +65,11 @@ public class CategoryController extends AbstractController {
         return ResponseEntity.ok(category);
    }
     @GetMapping("/images/{filePath}")
-    @SneakyThrows
     public void download(@PathVariable String filePath, HttpServletResponse resp){
-        File f = new File("categories" + File.separator + filePath);
-        if(!f.exists()){
-            throw new NotFoundException("File does not exist!");
-        }
-        resp.setContentType(Files.probeContentType(f.toPath()));
-        Files.copy(f.toPath(), resp.getOutputStream());
+        iconService.download(filePath, resp);
     }
 
-    @DeleteMapping("/category/{id}")
+    @DeleteMapping("/categories/{id}")
     public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id, HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         MessageDTO message = categoryService.deleteCategory(id, userId);

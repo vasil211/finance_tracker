@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,13 +37,15 @@ public class PdfGenerator<T> {
         }
         document.close();
         File f = new File("dataOutput.pdf");
-        if (!f.exists()) {
+        if(!f.exists()){
             throw new NotFoundException("File does not exist!");
         }
+        response.setContentType(Files.probeContentType(f.toPath()));
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDateTime = dateFormat.format(new Date());
-        response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=" + f.getName() + currentDateTime+".pdf");
         response.setContentLength((int) f.length());
+        Files.copy(f.toPath(), response.getOutputStream());
+        f.delete();
     }
 }

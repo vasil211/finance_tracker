@@ -1,7 +1,5 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.dao.TransactionDAO;
-import com.app.finance_tracker.model.dao.TransferDAO;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionFilteredDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
@@ -26,15 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -47,7 +40,6 @@ public class TransactionService extends AbstractService{
     private UserRepository userRepository;
     @Autowired
     private TransactionRepository transactionRepository;
-
     @Autowired
     private BudgetRepository budgetRepository;
 
@@ -64,7 +56,7 @@ public class TransactionService extends AbstractService{
         if (!accountRepository.existsById(accountId)){
             throw new NotFoundException("account not found");
         }
-        List<TransactionReturnDto> list = transactionRepository.findAllById(accountId)
+        List<TransactionReturnDto> list = transactionRepository.findAllByAccountId(accountId)
                 .stream().map(t -> modelMapper.map(t, TransactionReturnDto.class)).toList();
         return list;
     }

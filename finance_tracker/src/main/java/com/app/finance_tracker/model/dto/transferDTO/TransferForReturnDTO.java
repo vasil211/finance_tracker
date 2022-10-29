@@ -3,6 +3,7 @@ package com.app.finance_tracker.model.dto.transferDTO;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForTransferDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserForTransferDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -21,16 +22,18 @@ public class TransferForReturnDTO {
     private LocalDateTime date;
     private String description;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     @Override
     public String toString() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         final StringBuilder sb = new StringBuilder();
         sb.append("amount : " + currency+ " ").append(amount);
         sb.append(currency.getSymbol());
         sb.append(", receiver :").append(receiver);
         sb.append(", sender : ").append(sender);
         sb.append(", date : ").append(date.format(formatter));
-        sb.append("\n description: \n"+ description);
+        if(description != null){
+            sb.append(",\ndescription : ").append(description);
+        }
         return sb.toString();
     }
 }

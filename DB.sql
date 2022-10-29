@@ -2,7 +2,6 @@ drop database if exists finance_tracker;
 create database finance_tracker;
 use finance_tracker;
 
-
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(20) UNIQUE NOT NULL,
@@ -105,6 +104,22 @@ CREATE TABLE scheduled_payments (
         REFERENCES accounts (id)
 );
 
+CREATE TABLE fotgotten_password_tokens (
+    token VARCHAR(100) UNIQUE NOT NULL,
+    user_id INT NOT NULL,
+    created DATETIME NOT NULL,
+    FOREIGN KEY (user_id)
+        REFERENCES users (id)
+);
+
+ALTER TABLE accounts ADD INDEX user_id (user_id);
+ALTER TABLE budgets ADD INDEX budgets (user_id, category_id);
+ALTER TABLE categories ADD INDEX categories (name, user_id);
+ALTER TABLE scheduled_payments ADD INDEX scheduled_payments (account_id);
+ALTER TABLE transactions ADD INDEX transactions (account_id);
+ALTER TABLE transfers ADD INDEX transfers (to_user_account_id,from_user_account_id);
+ALTER TABLE fotgotten_password_tokens ADD INDEX fotgotten_password_tokens (token);
+
 insert into icons(url) values("20254611317500-112.jpg");
 insert into categories(name,icon_id) values("Plant",1);
 insert into icons(url) values("20254611317200-412.jfif");
@@ -126,3 +141,5 @@ INSERT INTO `transfers` VALUES (1,600,1,2,1,'2022-10-23 22:17:13',NULL),
 (4,600,1,2,1,'2022-10-23 22:22:12',NULL),
 (7,600,1,2,1,'2022-10-23 22:27:09',NULL),
 (8,300,1,1,2,'2022-10-23 22:43:43',NULL);
+
+

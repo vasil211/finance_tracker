@@ -58,15 +58,15 @@ public class CategoryService extends AbstractService {
         return categoryForReturnDTO;
     }
 
-    public void changeCategoryName(long categoryId, long userId, String name) {
-        Category category = categoryRepository.findByIdAndUserId(categoryId, userId)
+    public void changeCategoryName(long categoryId, String name) {
+        Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         category.setName(name);
         categoryRepository.save(category);
     }
 
-    public Icon changeCategoryPic(long categoryId, long userId, MultipartFile file) {
-        Category categoryFromUser = categoryRepository.findByIdAndUserId(categoryId, userId)
+    public Icon changeCategoryPic(long categoryId, MultipartFile file) {
+        Category categoryFromUser = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         File old = new File(categoryFromUser.getIcon().getUrl());
         old.delete();
@@ -98,10 +98,10 @@ public class CategoryService extends AbstractService {
         CategoryForReturnDTO categoryForReturnDTO = new CategoryForReturnDTO();
         categoryForReturnDTO.setId(categoryId);
         if(!iconService.getIconById(categoryId).getUrl().equals(file.getOriginalFilename())){
-            icon = changeCategoryPic(categoryId, userId, file);
+            icon = changeCategoryPic(categoryId, file);
             categoryForReturnDTO.setIconURL(icon.getUrl());
         }
-        changeCategoryName(categoryId,userId,name);
+        changeCategoryName(categoryId,name);
         categoryForReturnDTO.setName(name);
         return categoryForReturnDTO;
     }

@@ -5,7 +5,9 @@ import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
+import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +22,12 @@ public class UserService extends AbstractService {
 
     public User loginUser(UserLoginDTO userDTO) {
         if (!userValidation.validateUsername(userDTO.getUsername())) {
-            throw new InvalidArgumentsException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials");
         }
         User user = userRepository.findByUsername(userDTO.getUsername())
-                .orElseThrow(() -> new InvalidArgumentsException("Invalid credentials"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid credentials"));
         if (!encoder.matches(userDTO.getPassword(), user.getPassword())) {
-            throw new InvalidArgumentsException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials");
         }
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
@@ -58,7 +60,7 @@ public class UserService extends AbstractService {
                 .map(user -> modelMapper.map(user, UserWithoutPasswordDTO.class))
                 .toList();
     }
-
+    @Async
     public void sendEmails() {
         List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
         String subject = "Finance Tracker";

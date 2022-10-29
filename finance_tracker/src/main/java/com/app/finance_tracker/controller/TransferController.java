@@ -36,7 +36,7 @@ public class TransferController extends AbstractController {
 
 
     // send
-    @PostMapping("/transfer")
+    @PostMapping("/transfers")
     public ResponseEntity<TransferForReturnDTO> sendTransfer(@RequestBody TransferDTO transferDTO, HttpServletRequest request) {
         long id = checkIfLoggedAndReturnUserId(request);
         TransferForReturnDTO transfer = transferService.createTransfer(transferDTO, id);
@@ -45,7 +45,7 @@ public class TransferController extends AbstractController {
     }
 
     //get transfer by id
-    @GetMapping("/transfer/{id}")
+    @GetMapping("/transfers/{id}")
     public ResponseEntity<TransferForReturnDTO> getTransferById(@PathVariable long id, HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         TransferForReturnDTO transfer = transferService.getTransferById(id, userId);
@@ -60,40 +60,31 @@ public class TransferController extends AbstractController {
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
-    //get all received
-    @GetMapping("accounts/{id}/transfer/received")
+    @GetMapping("/accounts/{id}/transfer/received")
     public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfers(HttpServletRequest request, @PathVariable long id) {
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfers(id, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
 
-    //get all received from account
-    @GetMapping("accounts/{id}/transfers/received/{fromId}")
+    @GetMapping("/accounts/{id}/transfers/received/{fromId}")
     public ResponseEntity<List<TransferForReturnDTO>> getAllReceivedTransfersFromUser(@PathVariable long id, @PathVariable long fromId,
                                                                                       HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         List<TransferForReturnDTO> transfer = transferService.getAllReceivedTransfersFromAccount(id, fromId, userId);
         return new ResponseEntity<>(transfer, HttpStatus.OK);
     }
-    @GetMapping("/users/transfers/filtered")
+    @GetMapping("/accounts/transfers/filtered")
     public ResponseEntity<List<TransferForReturnDTO>> getAllTransfersFiltered(HttpServletRequest request, @RequestBody TransferFilteredDto filteredDto){
         long id = checkIfLoggedAndReturnUserId(request);
-        //check if accounts belong to current user
         List<TransferForReturnDTO> transfers = transferService.getAllTransfersFiltered(filteredDto, id);
         return ResponseEntity.ok(transfers);
     }
-
-    @GetMapping("/test")
-    public CurrencyExchangeDto exchange(@RequestParam String from,@RequestParam String to,@RequestParam double amount){
-        return currencyExchangeService.getExchangedCurrency(from,to,amount);
-    }
     @SneakyThrows
-    @PostMapping("/transfers/downloadPdf")
-    public @ResponseBody byte[] downloadPdf(HttpServletRequest request , HttpServletResponse response, @RequestBody TransferFilteredDto filteredDto){
+    @PostMapping("/accounts/transfers/downloadPdf")
+    public ResponseEntity downloadPdf(HttpServletRequest request , HttpServletResponse response, @RequestBody TransferFilteredDto filteredDto){
         long userId = checkIfLoggedAndReturnUserId(request);
-        byte[] asd = transferService.downloadPdf(response, filteredDto, userId);
-
-        return  asd;
+        transferService.downloadPdf(response, filteredDto, userId);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -2,6 +2,7 @@ package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.entities.Icon;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,16 @@ public class IconService extends AbstractService {
         File f = new File("categories" + File.separator + icon.getUrl());
         f.delete();
         iconRepository.delete(icon);
+    }
+
+    @SneakyThrows
+    public void download(String filePath, HttpServletResponse resp) {
+        File f = new File("categories" + File.separator + filePath);
+        if(!f.exists()){
+            throw new NotFoundException("File does not exist!");
+        }
+        resp.setContentType(Files.probeContentType(f.toPath()));
+        Files.copy(f.toPath(), resp.getOutputStream());
     }
 }
 

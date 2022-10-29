@@ -27,21 +27,21 @@ public class UserController extends AbstractController {
     private ModelMapper modelMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailServiceImpl emailService;
 
-    @PostMapping("/register")
+    @PostMapping("/users/register")
     public ResponseEntity<UserWithoutPasswordDTO> registerUser(@RequestBody UserRegistrationDTO userDTO) {
         User user = userService.registerUser(userDTO);
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
-    @Autowired
-    private EmailServiceImpl emailService;
-    @PostMapping("/login")
+
+    @PostMapping("/users/login")
     public ResponseEntity<UserWithoutPasswordDTO> loginUser(@RequestBody UserLoginDTO userDTO, HttpServletRequest request) {
         User user = userService.loginUser(userDTO);
         logUser(request, user.getId());
-
-        //emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
+        emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 
@@ -68,12 +68,12 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok(users);
     }
 
+    // todo forgotten password
 
     @Scheduled(cron = "0 9 * * * *")
     public void sendEmail() {
         userService.sendEmails();
     }
-
 
 //    @Autowired
 //    private CurrencyRepository currencyRepository;

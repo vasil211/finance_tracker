@@ -173,10 +173,12 @@ public class TransferService extends AbstractService {
         return transferForReturnDTOS;
     }
     @SneakyThrows
-    public byte[] downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
+    public void downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
         List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);
+
+        generatePdfFile(transfers, resp);
         Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream("iTextHelloWorld.pdf"));
+        PdfWriter.getInstance(document, new FileOutputStream("dataOutput.pdf"));
         document.open();
         Font font = FontFactory.getFont(FontFactory.COURIER, 12, BaseColor.BLACK);
         for (TransferForReturnDTO transfer : transfers) {
@@ -188,7 +190,7 @@ public class TransferService extends AbstractService {
         }
 
         document.close();
-        File f = new File("iTextHelloWorld.pdf");
+        File f = new File("dataOutput.pdf");
         if (!f.exists()) {
             throw new NotFoundException("File does not exist!");
         }
