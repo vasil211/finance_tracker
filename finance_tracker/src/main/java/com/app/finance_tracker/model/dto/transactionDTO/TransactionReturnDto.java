@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 @Data
 public class TransactionReturnDto {
+    private long id;
     private AccountForReturnDTO account;
     private double amount;
     private CategoryForReturnDTO category;

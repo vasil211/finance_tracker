@@ -75,4 +75,16 @@ public class TransactionDAO {
                     rs.getTimestamp("created_at").toLocalDateTime(),
                     rs.getString("description")));
     }
+
+    public List<Transaction> getTransactionsByUserId(long userId){
+        String sql = "SELECT t.id,t.account_id,t.amount,t.category_id,t.created_at,t.description FROM transactions AS t " +
+                "JOIN accounts AS a ON (a.id=t.account_id) WHERE a.user_id = ?";
+        return jdbcTemplate.query(sql,new Object[]{userId},(rs, rowNum) -> new Transaction(
+                rs.getLong("id"),
+                accountService.getAccountById(rs.getLong("id")),
+                rs.getDouble("amount"),
+                accountService.getCategoryById(rs.getLong("category_id")),
+                rs.getTimestamp("created_at").toLocalDateTime(),
+                rs.getString("description")));
+    }
 }
