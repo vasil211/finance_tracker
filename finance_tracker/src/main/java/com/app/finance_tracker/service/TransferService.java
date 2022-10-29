@@ -40,7 +40,7 @@ public class TransferService extends AbstractService {
         }
         Account receiver = getAccountById(transferDTO.getReceiverAccountId());
 
-        if (sender.getId()== receiver.getId()){
+        if (sender.getId() == receiver.getId()) {
             throw new BadRequestException("Cannot send money to same account");
         }
 
@@ -53,11 +53,11 @@ public class TransferService extends AbstractService {
     private Transfer doTransfer(TransferDTO transferDTO, Account sender, Account receiver) {
         // exchange currency if needed
         double amount = transferDTO.getAmount();
-        if (sender.getCurrency().getId() != receiver.getCurrency().getId()){
+        if (sender.getCurrency().getId() != receiver.getCurrency().getId()) {
             Currency senderCurrency = sender.getCurrency();
             Currency receiverCurrency = receiver.getCurrency();
             CurrencyExchangeDto dto = currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(), amount);
-            amount=dto.getResult();
+            amount = dto.getResult();
         }
         sender.removeFromBalance(transferDTO.getAmount());
         accountRepository.save(sender);
@@ -128,36 +128,38 @@ public class TransferService extends AbstractService {
         return transferForReturnDTO;
     }
 
-    //get received transfers from one date to another
-    /*public List<TransferForReturnDTO> getAllTransfersWithFilter(long accountId, Date fromDate, Date toDate) {
-        List<Transfer> transfers = transferDAO.getAllTransfersWithFilterByDate(accountId, fromDate, toDate);
-        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-        for(Transfer transfer : transfers){
-            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
-        }
-        return transferForReturnDTOS;
-    }*/
-
-
     public List<TransferForReturnDTO> getAllTransfersFiltered(TransferFilteredDto filteredDto, long userID) {
-        List<Transfer> transfers;
+        List<Transfer> transfers = null;
         List<Long> allOwnAccounts;
         if (filteredDto.getOwnAccountsIds().size() == 0) {
             allOwnAccounts = accountRepository.findAllByUserId(userID).stream().map(Account::getId).toList();
         } else {
             allOwnAccounts = filteredDto.getOwnAccountsIds();
         }
-        transfers = transferDAO.getAllTransfersFiltered(filteredDto.getToAccountsIds(),
-                filteredDto.getFromAccountsIds(), allOwnAccounts, filteredDto.getFromDate(),
-                filteredDto.getToDate(), filteredDto.getFromAmount(), filteredDto.getToAmount(),
-                filteredDto.getCurrenciesIds(), filteredDto.getChoice());
-
-        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-        for (Transfer transfer : transfers) {
-            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
+        switch (filteredDto.getChoice()) {
+            case "sent" -> transfers = transferDAO.getAllSent(allOwnAccounts, filteredDto.getFromAccountsIds(),
+                    filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
+                    filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
+            case "received" -> transfers = transferDAO.getAllReceived(allOwnAccounts, filteredDto.getToAccountsIds(),
+                    filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
+                    filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
+            case "all" -> transfers = transferDAO.getAll(allOwnAccounts, filteredDto.getFromAccountsIds(),
+                    filteredDto.getToAccountsIds(), filteredDto.getFromDate(), filteredDto.getToDate(),
+                    filteredDto.getFromAmount(), filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
+            default -> throw new BadRequestException("Invalid choice");
         }
-        return transferForReturnDTOS;
+        if(transfers != null){
+
+            List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
+            for (Transfer transfer : transfers) {
+                transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
+            }
+            return transferForReturnDTOS;
+        }else {
+            throw new BadRequestException("No transfers found");
+        }
     }
+
     @SneakyThrows
     public void downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
         List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);

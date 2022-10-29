@@ -16,8 +16,6 @@ public class CurrencyForReturnDTO {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("code: ").append(code).append('\n');
-        return sb.toString();
+        return code;
     }
 }

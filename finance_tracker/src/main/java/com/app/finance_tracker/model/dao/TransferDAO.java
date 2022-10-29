@@ -1,46 +1,61 @@
 package com.app.finance_tracker.model.dao;
 
-import com.app.finance_tracker.model.entities.Account;
+
 import com.app.finance_tracker.model.entities.Transfer;
 import com.app.finance_tracker.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.List;
-
 @Component
 public class TransferDAO {
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedJdbcTemplate;
     @Autowired
     private AccountService accountService;
 
-    public List<Transfer> getAllTransfersFiltered(List<Long> toAccountsIds, List<Long> fromAccountsIds,
-                                                  List<Long> ownAccountsIds, LocalDate fromDate, LocalDate toDate,
-                                                  double fromAmount, double toAmount, List<Long> currencies, String choice) {
-        StringBuilder sb = new StringBuilder();
-        switch (choice) {
-            case "all" -> {
-                initialSelectWithToYourAccount(fromAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
-                        toAmount, currencies, sb);
-                sb.append(" UNION ");
-                initialSelectWithFromYourAccount(toAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
-                        toAmount, currencies, sb);
-            }
-            case "sent" -> initialSelectWithFromYourAccount(toAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
-                    toAmount, currencies, sb);
-            case "received" ->
-                    initialSelectWithToYourAccount(fromAccountsIds, ownAccountsIds, fromDate, toDate, fromAmount,
-                            toAmount, currencies, sb);
+    public List<Transfer> getAllSent(List<Long> fromAccountsIds, List<Long> toAccountsIds, LocalDate fromDate,
+                                     LocalDate toDate, double fromAmount, double toAmount, List<Long> currencies) {
 
-            default -> throw new IllegalStateException("Unexpected value: " + choice);
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        if(toAmount == 0){
+            toAmount = Double.MAX_VALUE;
         }
-        sb.append(" ORDER BY date_of_transfer DESC");
-        System.out.println(sb.toString());
-        return jdbcTemplate.query(
-                sb.toString(),
+        if (fromDate == null) {
+            fromDate = LocalDate.of(1970, 1, 1);
+        }
+        if (toDate == null) {
+            toDate = LocalDate.now();
+        }
+        map.addValue("from", fromAccountsIds);
+        map.addValue("fromDate", fromDate);
+        map.addValue("toDate", toDate);
+        map.addValue("fromAmount", fromAmount);
+        map.addValue("toAmount", toAmount);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
+                "FROM transfers WHERE from_user_account_id IN (:from)");
+        if (toAccountsIds.size() > 0) {
+            sb.append(" AND to_user_account_id IN (:to)");
+            map.addValue("to", toAccountsIds);
+        }
+        if (currencies.size() > 0) {
+            sb.append(" AND currency_id IN (:currency)");
+            map.addValue("currency", currencies);
+        }
+        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+                "ORDER BY date_of_transfer DESC");
+
+        String query = sb.toString();
+
+        return namedJdbcTemplate.query(
+                query,
+                map,
                 (rs, rowNum) -> new Transfer(
                         rs.getLong("id"),
                         rs.getDouble("amount"),
@@ -51,75 +66,11 @@ public class TransferDAO {
                         rs.getString("description")));
     }
 
-    private void initialSelectWithFromYourAccount(List<Long> toAccountsIds, List<Long> ownAccountsIds,
-                                                  LocalDate fromDate, LocalDate toDate, double fromAmount,
-                                                  double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description FROM transfers WHERE");
-        sb.append(" from_user_account_id");
-        if (ownAccountsIds.size() == 1) {
-            sb.append(" = ").append(ownAccountsIds.get(0));
-        } else {
-            appendAccounts(ownAccountsIds, sb);
-        }
-        if (toAccountsIds.size() != 0) {
-            sb.append(" AND to_user_account_id");
-            if (toAccountsIds.size() == 1) {
-                sb.append(" = ").append(toAccountsIds.get(0));
-            } else {
-                appendAccounts(toAccountsIds, sb);
-            }
-        }
-        appendCurrencyAndDate(fromDate, toDate, fromAmount, toAmount, currencies, sb);
-    }
-
-    private void initialSelectWithToYourAccount(List<Long> fromAccountsIds, List<Long> ownAccountsIds,
-                                                LocalDate fromDate, LocalDate toDate, double fromAmount,
-                                                double toAmount, List<Long> currencies, StringBuilder sb) {
-        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer, description" +
-                " FROM transfers WHERE");
-        sb.append(" to_user_account_id");
-        if (ownAccountsIds.size() == 1) {
-            sb.append(" = ").append(ownAccountsIds.get(0));
-        } else {
-            appendAccounts(ownAccountsIds, sb);
-        }
-        if (fromAccountsIds.size() != 0) {
-            sb.append(" AND from_user_account_id");
-            if (fromAccountsIds.size() == 1) {
-                sb.append(" = ").append(fromAccountsIds.get(0));
-            } else {
-                appendAccounts(fromAccountsIds, sb);
-            }
-        }
-        appendCurrencyAndDate(fromDate, toDate, fromAmount, toAmount, currencies, sb);
-    }
-
-    private static void appendAccounts(List<Long> accountIds, StringBuilder sb) {
-        sb.append(" IN (");
-        for (int i = 0; i < accountIds.size(); i++) {
-            sb.append(accountIds.get(i));
-            if (i < accountIds.size() - 1) {
-                sb.append(",");
-            }
-        }
-        sb.append(")");
-    }
-
-    private void appendCurrencyAndDate(LocalDate fromDate, LocalDate toDate, double fromAmount,
-                                       double toAmount, List<Long> currencies, StringBuilder sb) {
-        if (currencies.size() != 0) {
-            sb.append(" AND currency_id");
-            if (currencies.size() == 1) {
-                sb.append(" = ").append(currencies.get(0));
-            } else {
-                for (int i = 0; i < currencies.size(); i++) {
-                    sb.append(currencies.get(i));
-                    if (i < currencies.size() - 1) {
-                        sb.append(",");
-                    }
-                }
-                sb.append(")");
-            }
+    public List<Transfer> getAllReceived(List<Long> fromAccountsIds, List<Long> toAccountsIds, LocalDate fromDate,
+                                         LocalDate toDate, double fromAmount, double toAmount, List<Long> currencies) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        if(toAmount == 0){
+            toAmount = Double.MAX_VALUE;
         }
         if (fromDate == null) {
             fromDate = LocalDate.of(1970, 1, 1);
@@ -127,13 +78,94 @@ public class TransferDAO {
         if (toDate == null) {
             toDate = LocalDate.now();
         }
-        sb.append(" AND CAST(date_of_transfer AS DATE) BETWEEN \"").append(fromDate).append("\" AND \"")
-                .append(toDate).append("\"");
+        map.addValue("to", fromAccountsIds);
+        map.addValue("fromDate", fromDate);
+        map.addValue("toDate", toDate);
+        map.addValue("fromAmount", fromAmount);
+        map.addValue("toAmount", toAmount);
 
-        if (toAmount == 0) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
+                "FROM transfers WHERE to_user_account_id IN (:to)");
+        if (toAccountsIds.size() > 0) {
+            sb.append(" AND from_user_account_id IN (:to)");
+            map.addValue("from", toAccountsIds);
+        }
+        if (currencies.size() > 0) {
+            sb.append(" AND currency_id IN (:currency)");
+            map.addValue("currency", currencies);
+        }
+        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+                "ORDER BY date_of_transfer DESC");
+
+        return namedJdbcTemplate.query(
+                sb.toString(),
+                map,
+                (rs, rowNum) -> new Transfer(
+                        rs.getLong("id"),
+                        rs.getDouble("amount"),
+                        accountService.getCurrencyById(rs.getInt("currency_id")),
+                        accountService.getAccountById(rs.getInt("from_user_account_id")),
+                        accountService.getAccountById(rs.getInt("to_user_account_id")),
+                        rs.getTimestamp("date_of_transfer").toLocalDateTime(),
+                        rs.getString("description")));
+    }
+
+    public List<Transfer> getAll(List<Long> ownAccountsIds, List<Long> fromAccountsIds, List<Long> toAccountsIds, LocalDate fromDate,
+                                 LocalDate toDate, double fromAmount, double toAmount, List<Long> currencies) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        if(toAmount == 0){
             toAmount = Double.MAX_VALUE;
         }
+        if (fromDate == null) {
+            fromDate = LocalDate.of(1970, 1, 1);
+        }
+        if (toDate == null) {
+            toDate = LocalDate.now();
+        }
+        map.addValue("own", ownAccountsIds);
+        map.addValue("fromDate", fromDate);
+        map.addValue("toDate", toDate);
+        map.addValue("fromAmount", fromAmount);
+        map.addValue("toAmount", toAmount);
 
-        sb.append(" AND amount BETWEEN ").append(fromAmount).append(" AND ").append(toAmount);
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
+                "FROM transfers WHERE from_user_account_id IN (:own)");
+        if (toAccountsIds.size() > 0) {
+            sb.append(" AND to_user_account_id IN (:to)");
+            map.addValue("to", toAccountsIds);
+        }
+        if (currencies.size() > 0) {
+            sb.append(" AND currency_id IN (:currency)");
+            map.addValue("currency", currencies);
+        }
+        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount ");
+        sb.append(" UNION ");
+
+        sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
+                "FROM transfers WHERE to_user_account_id IN (:own)");
+        if (toAccountsIds.size() > 0) {
+            sb.append(" AND from_user_account_id IN (:from)");
+            map.addValue("from", toAccountsIds);
+        }
+        if (currencies.size() > 0) {
+            sb.append(" AND currency_id IN (:currency)");
+        }
+        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+                "ORDER BY date_of_transfer DESC");
+
+        return namedJdbcTemplate.query(
+                sb.toString(),
+                map,
+                (rs, rowNum) -> new Transfer(
+                        rs.getLong("id"),
+                        rs.getDouble("amount"),
+                        accountService.getCurrencyById(rs.getInt("currency_id")),
+                        accountService.getAccountById(rs.getInt("from_user_account_id")),
+                        accountService.getAccountById(rs.getInt("to_user_account_id")),
+                        rs.getTimestamp("date_of_transfer").toLocalDateTime(),
+                        rs.getString("description")));
     }
 }
+

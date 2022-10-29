@@ -7,7 +7,6 @@ import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.EmailServiceImpl;
-import com.app.finance_tracker.model.utility.PdfGenerator;
 import com.app.finance_tracker.model.utility.validation.AccountValidation;
 import com.app.finance_tracker.model.utility.validation.TransferValidation;
 import com.app.finance_tracker.model.utility.validation.UserValidation;
