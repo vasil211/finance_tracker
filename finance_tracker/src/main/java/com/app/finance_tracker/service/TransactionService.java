@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class TransactionService extends AbstractService{
+public class TransactionService extends AbstractService {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
@@ -55,10 +55,10 @@ public class TransactionService extends AbstractService{
 
     public List<TransactionReturnDto> getAllTransactionsForAccount(long userId, long accountId) {
         checkIfAccountBelongsToUser(userId, accountId);
-        if (!userRepository.existsById(userId)){
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("user not found");
         }
-        if (!accountRepository.existsById(accountId)){
+        if (!accountRepository.existsById(accountId)) {
             throw new NotFoundException("account not found");
         }
         List<TransactionReturnDto> list = transactionRepository.findAllByAccountId(accountId)
@@ -68,11 +68,11 @@ public class TransactionService extends AbstractService{
 
     //TODO FIX THIS TO GET THE LIST WITH QUERY
     public List<TransactionReturnDto> getAllByUserId(long userId) {
-        if (!userRepository.existsById(userId)){
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("user not found.");
         }
-        List<Transaction> transactions= transactionDAO.getTransactionsByUserId(userId);
-        List<TransactionReturnDto> result = transactions.stream().map(t -> modelMapper.map(t,TransactionReturnDto.class)).toList();
+        List<Transaction> transactions = transactionDAO.getTransactionsByUserId(userId);
+        List<TransactionReturnDto> result = transactions.stream().map(t -> modelMapper.map(t, TransactionReturnDto.class)).toList();
         return result;
     }
 
@@ -87,19 +87,19 @@ public class TransactionService extends AbstractService{
     @Transactional
     public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id, long userId) {
         checkIfAccountBelongsToUser(id, userId);
-        if (!isValidAmount(transactionDto.getAmount())){
+        if (!isValidAmount(transactionDto.getAmount())) {
             throw new BadRequestException("money should be higher than 0");
         }
 
         Account account = getAccountById(id);
-        Budget budget = budgetRepository.findBudgetByCategoryIdAndUserId(transactionDto.getCategoryId(),userId)
+        Budget budget = budgetRepository.findBudgetByCategoryIdAndUserId(transactionDto.getCategoryId(), userId)
                 .orElseThrow(() -> new BadRequestException("You dont have budget for this category."));
 
-        if (checkBalance(account,transactionDto.getAmount())){
+        if (checkBalance(account, transactionDto.getAmount())) {
             throw new BadRequestException("Not enough money. Please add money to the account to make this transaction");
         }
 
-        Category category= getCategoryById(transactionDto.getCategoryId());
+        Category category = getCategoryById(transactionDto.getCategoryId());
         if (category.getUser() != null && category.getUser().getId() != userId) {
             throw new NotFoundException("You dont have such category.");
         }
@@ -112,11 +112,11 @@ public class TransactionService extends AbstractService{
         transactionRepository.save(transaction);
         accountRepository.save(account);
         budgetRepository.save(budget);
-        return modelMapper.map(transaction,TransactionReturnDto.class);
+        return modelMapper.map(transaction, TransactionReturnDto.class);
     }
 
     private boolean isBudgetBalanceEnough(double amount, double budgetBalance) {
-        return budgetBalance>amount;
+        return budgetBalance > amount;
     }
 
     public Transaction setFields(CreateTransactionDto transactionDto) {
@@ -127,54 +127,58 @@ public class TransactionService extends AbstractService{
         return transaction;
     }
 
-    private boolean checkBalance(Account account, double amount){
+    private boolean checkBalance(Account account, double amount) {
         return account.getBalance() < amount;
     }
 
     public TransactionReturnDto getTransactionById(long userId, long id) {
-        if (!userRepository.existsById(userId)){
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("user not found.");
         }
         Transaction transaction = getTransactionById(id);
 
-        if (transaction.getAccount().getUser().getId()!= userId){
+        if (transaction.getAccount().getUser().getId() != userId) {
             throw new UnauthorizedException("no access to this transaction");
         }
-        return modelMapper.map(transaction,TransactionReturnDto.class);
+        return modelMapper.map(transaction, TransactionReturnDto.class);
     }
 
     public List<TransactionReturnDto> getFilteredTransactions(long userId, TransactionFilteredDto transactionFilteredDto) {
         List<Long> ownAccounts = transactionFilteredDto.getAccountIds();
         List<Long> wantedCategories = transactionFilteredDto.getCategoryIds();
-        if (ownAccounts.size()==0){
-            ownAccounts= accountRepository.findAllByUserId(userId).stream().map(a -> a.getId()).toList();
+        if (ownAccounts.size() == 0) {
+            ownAccounts = accountRepository.findAllByUserId(userId).stream().map(a -> a.getId()).toList();
+        }
+        else {
+            if (ownAccounts.stream().anyMatch(a -> getAccountById(a).getUser().getId() != userId))
+                throw new UnauthorizedException("Dont have access for this action");
         }
         /*if (wantedCategories.size()==0){
             wantedCategories = categoryRepository.findAllByUserIsNullOrUserId(userId).stream().map(c -> c.getId()).toList();
         }*/
-        List<Transaction> transactions = transactionDAO.getFilteredTransactions(ownAccounts,transactionFilteredDto.getFromAmount(),
-                transactionFilteredDto.getToAmount(),transactionFilteredDto.getFromDate(),
-                transactionFilteredDto.getToDate(),wantedCategories);
+        List<Transaction> transactions = transactionDAO.testFilter(ownAccounts, transactionFilteredDto.getFromAmount(),
+                transactionFilteredDto.getToAmount(), transactionFilteredDto.getFromDate(),
+                transactionFilteredDto.getToDate(), wantedCategories);
 
         List<TransactionReturnDto> result = new ArrayList<>();
-        for (Transaction transaction : transactions){
-            result.add(modelMapper.map(transaction,TransactionReturnDto.class));
+        for (Transaction transaction : transactions) {
+            result.add(modelMapper.map(transaction, TransactionReturnDto.class));
         }
         return result;
     }
 
     public void downloadTransactionsPdf(long userId, TransactionFilteredDto filteredDto, HttpServletResponse response) {
-        List<TransactionReturnDto> transactions = getFilteredTransactions(userId,filteredDto);
+        List<TransactionReturnDto> transactions = getFilteredTransactions(userId, filteredDto);
         Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
         for (TransactionReturnDto transaction : transactions) {
             if (totalAmounts.containsKey(transaction.getAccount().getCurrency())) {
                 totalAmounts.put(transaction.getAccount().getCurrency(),
                         totalAmounts.get(transaction.getAccount().getCurrency()) + transaction.getAmount());
-            }else {
-                totalAmounts.put(transaction.getAccount().getCurrency(),transaction.getAmount());
+            } else {
+                totalAmounts.put(transaction.getAccount().getCurrency(), transaction.getAmount());
             }
         }
         PdfGenerator<TransactionReturnDto> generator = new PdfGenerator<>();
-        generator.generatePdfFile(transactions,response, totalAmounts);
+        generator.generatePdfFile(transactions, response, totalAmounts);
     }
 }
