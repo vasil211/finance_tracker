@@ -9,7 +9,7 @@ import java.util.Date;
 public class ScheduledPaymentCreateDto {
     private double amount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date dueDate;
+    private LocalDate dueDate;
     private String title;
     private long categoryId;
     private long accountId;

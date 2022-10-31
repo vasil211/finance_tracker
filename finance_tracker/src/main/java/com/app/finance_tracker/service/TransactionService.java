@@ -1,18 +1,16 @@
 package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
+import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionFilteredDto;
+import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
-import com.app.finance_tracker.model.entities.Account;
-import com.app.finance_tracker.model.entities.Budget;
-import com.app.finance_tracker.model.entities.Category;
-import com.app.finance_tracker.model.entities.Transaction;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.PdfGenerator;
 import com.itextpdf.text.*;
@@ -38,8 +36,6 @@ import java.util.Map;
 @Service
 public class TransactionService extends AbstractService {
     @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
     private AccountRepository accountRepository;
     @Autowired
     private UserRepository userRepository;
@@ -48,10 +44,9 @@ public class TransactionService extends AbstractService {
     @Autowired
     private BudgetRepository budgetRepository;
 
+    @Autowired
+    private CurrencyExchangeService currencyExchangeService;
 
-    private boolean validateCategory(long categoryId) {
-        return categoryRepository.existsById(categoryId);
-    }
 
     public List<TransactionReturnDto> getAllTransactionsForAccount(long userId, long accountId) {
         checkIfAccountBelongsToUser(userId, accountId);
@@ -95,7 +90,9 @@ public class TransactionService extends AbstractService {
         Budget budget = budgetRepository.findBudgetByCategoryIdAndUserId(transactionDto.getCategoryId(), userId)
                 .orElseThrow(() -> new BadRequestException("You dont have budget for this category."));
 
-        if (checkBalance(account, transactionDto.getAmount())) {
+        double amount = transactionDto.getAmount();
+
+        if (checkBalance(account, amount)) {
             throw new BadRequestException("Not enough money. Please add money to the account to make this transaction");
         }
 
@@ -107,16 +104,20 @@ public class TransactionService extends AbstractService {
         Transaction transaction = setFields(transactionDto);
         transaction.setCategory(category);
         transaction.setAccount(account);
-        account.removeFromBalance(transaction.getAmount());
-        budget.decreaseAmount(transactionDto.getAmount());
+        account.removeFromBalance(amount);
         transactionRepository.save(transaction);
         accountRepository.save(account);
+
+        if (account.getCurrency().getId() != budget.getCurrency().getId()) {
+            Currency accountCurrency = account.getCurrency();
+            Currency budgetCurrency = budget.getCurrency();
+            CurrencyExchangeDto dto = currencyExchangeService.getExchangedCurrency(accountCurrency.getCode(), budgetCurrency.getCode(), amount);
+            amount = dto.getResult();
+        }
+
+        budget.decreaseAmount(amount);
         budgetRepository.save(budget);
         return modelMapper.map(transaction, TransactionReturnDto.class);
-    }
-
-    private boolean isBudgetBalanceEnough(double amount, double budgetBalance) {
-        return budgetBalance > amount;
     }
 
     public Transaction setFields(CreateTransactionDto transactionDto) {
@@ -153,9 +154,7 @@ public class TransactionService extends AbstractService {
             if (ownAccounts.stream().anyMatch(a -> getAccountById(a).getUser().getId() != userId))
                 throw new UnauthorizedException("Dont have access for this action");
         }
-        /*if (wantedCategories.size()==0){
-            wantedCategories = categoryRepository.findAllByUserIsNullOrUserId(userId).stream().map(c -> c.getId()).toList();
-        }*/
+
         List<Transaction> transactions = transactionDAO.testFilter(ownAccounts, transactionFilteredDto.getFromAmount(),
                 transactionFilteredDto.getToAmount(), transactionFilteredDto.getFromDate(),
                 transactionFilteredDto.getToDate(), wantedCategories);

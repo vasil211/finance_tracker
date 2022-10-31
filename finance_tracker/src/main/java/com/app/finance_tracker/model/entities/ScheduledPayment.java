@@ -17,7 +17,7 @@ public class ScheduledPayment {
     @Column
     private double amount;
     @Column(name = "due_date")
-    private Date dueDate;
+    private LocalDate dueDate;
     @Column
     private String title;
     @ManyToOne

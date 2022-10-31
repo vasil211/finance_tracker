@@ -14,7 +14,7 @@ import java.util.Date;
 public class ScheduledPaymentResponseDto {
     private long id;
     private double amount;
-    private Date dueDate;
+    private LocalDate dueDate;
     private String title;
     private CategoryForReturnDTO category;
     private AccountForReturnDTO account;
