@@ -129,7 +129,7 @@ public class TransferService extends AbstractService {
     }
 
     public List<TransferForReturnDTO> getAllTransfersFiltered(TransferFilteredDto filteredDto, long userID) {
-        List<Transfer> transfers = null;
+        List<Transfer> transfers = new ArrayList<>();
         List<Long> allOwnAccounts;
         if (filteredDto.getOwnAccountsIds().size() == 0) {
             allOwnAccounts = accountRepository.findAllByUserId(userID).stream().map(Account::getId).toList();
@@ -137,27 +137,22 @@ public class TransferService extends AbstractService {
             allOwnAccounts = filteredDto.getOwnAccountsIds();
         }
         switch (filteredDto.getChoice()) {
-            case "sent" -> transfers = transferDAO.getAllSent(allOwnAccounts, filteredDto.getFromAccountsIds(),
+            case "sent" -> transfers = transferDAO.getAllSent(allOwnAccounts, filteredDto.getOtherAccountsIds(),
                     filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
                     filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
-            case "received" -> transfers = transferDAO.getAllReceived(allOwnAccounts, filteredDto.getToAccountsIds(),
+            case "received" -> transfers = transferDAO.getAllReceived(allOwnAccounts, filteredDto.getOtherAccountsIds(),
                     filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
                     filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
-            case "all" -> transfers = transferDAO.getAll(allOwnAccounts, filteredDto.getFromAccountsIds(),
-                    filteredDto.getToAccountsIds(), filteredDto.getFromDate(), filteredDto.getToDate(),
+            case "all" -> transfers = transferDAO.getAll(allOwnAccounts, filteredDto.getOtherAccountsIds(),
+                    filteredDto.getFromDate(), filteredDto.getToDate(),
                     filteredDto.getFromAmount(), filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
             default -> throw new BadRequestException("Invalid choice");
         }
-        if(transfers != null){
-
-            List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-            for (Transfer transfer : transfers) {
-                transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
-            }
-            return transferForReturnDTOS;
-        }else {
-            throw new BadRequestException("No transfers found");
+        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
+        for (Transfer transfer : transfers) {
+            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
         }
+        return transferForReturnDTOS;
     }
 
     @SneakyThrows
@@ -166,7 +161,7 @@ public class TransferService extends AbstractService {
         Map<CurrencyForReturnDTO, Double> totalAmountsSend = new HashMap<>();
         Map<CurrencyForReturnDTO, Double> totalAmountsReceived = new HashMap<>();
         for (TransferForReturnDTO transfer : transfers) {
-            if(transfer.getSender().getId() == userID){
+            if (transfer.getSender().getId() == userID) {
                 if (totalAmountsSend.containsKey(transfer.getCurrency())) {
                     totalAmountsSend.put(transfer.getCurrency(), totalAmountsSend.get(transfer.getCurrency())
                             + transfer.getAmount());
@@ -174,7 +169,7 @@ public class TransferService extends AbstractService {
                     totalAmountsSend.put(transfer.getCurrency(), transfer.getAmount());
                 }
             }
-            if(transfer.getReceiver().getId() == userID){
+            if (transfer.getReceiver().getId() == userID) {
                 if (totalAmountsReceived.containsKey(transfer.getCurrency())) {
                     totalAmountsReceived.put(transfer.getCurrency(), totalAmountsReceived.get(transfer.getCurrency())
                             + transfer.getAmount());

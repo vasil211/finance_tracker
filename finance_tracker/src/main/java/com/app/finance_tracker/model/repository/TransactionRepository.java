@@ -13,4 +13,6 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> {
     List<Transaction> findAllByAccountId(long accountId);
 
     List<Transaction> findAllByAccountIdAndCreatedAtAfterAndCreatedAtBefore(long accountId, Date from, Date to);
+
+    void deleteAllByAccountId(long accountId);
 }

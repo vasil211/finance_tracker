@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Currency;
 import java.util.Date;
@@ -25,11 +26,12 @@ import java.util.Map;
 
 @Component
 public class PdfGenerator<T> {
-
+    private static final DecimalFormat df = new DecimalFormat("0.00");
     @SneakyThrows
     public void generatePdfFile(List<T> list, HttpServletResponse response,
                                 Map<CurrencyForReturnDTO, Double> totalAmountsSend,
                                 Map<CurrencyForReturnDTO, Double> totalAmountsReceived) {
+
         Document document = new Document();
         String fileName = "reference-" + System.currentTimeMillis() + ".pdf";
         PdfWriter.getInstance(document, new FileOutputStream(fileName));
@@ -40,13 +42,12 @@ public class PdfGenerator<T> {
             document.add(new Paragraph(str, font));
             document.add(new Chunk(Chunk.NEWLINE));
         }
+        document.add(new Paragraph("Total amount spend:", font));
+        document.add(new Chunk(Chunk.NEWLINE));
         if (totalAmountsSend != null && totalAmountsSend.size() > 0) {
-            document.add(new Paragraph("Total amount spend:", font));
-            document.add(new Chunk(Chunk.NEWLINE));
-
             for (Map.Entry<CurrencyForReturnDTO, Double> set :
                     totalAmountsSend.entrySet()) {
-                String str = set.getKey().getCode() + " : -" + set.getValue() + set.getKey().getSymbol();
+                String str = set.getKey().getCode() + " : -" + df.format(set.getValue()) + set.getKey().getSymbol();
                 document.add(new Paragraph(str, font));
                 document.add(new Chunk(Chunk.NEWLINE));
             }
@@ -57,7 +58,7 @@ public class PdfGenerator<T> {
 
             for (Map.Entry<CurrencyForReturnDTO, Double> set :
                     totalAmountsReceived.entrySet()) {
-                String str = set.getKey().getCode() + " : +" + set.getValue() + set.getKey().getSymbol();
+                String str = set.getKey().getCode() + " : +" + df.format(set.getValue()) + set.getKey().getSymbol();
                 document.add(new Paragraph(str, font));
                 document.add(new Chunk(Chunk.NEWLINE));
             }

@@ -43,6 +43,8 @@ CREATE TABLE categories (
     user_id INT DEFAULT NULL,
     FOREIGN KEY (icon_id)
         REFERENCES icons (id),
+    FOREIGN KEY (user_id)
+        REFERENCES users (id),
     UNIQUE KEY unique_key (name , user_id)
 );
 
@@ -129,11 +131,11 @@ insert into categories(name,icon_id) values("Pet",3);
 insert into icons(url) values("20323496383400-126.jfif");
 insert into categories(name,icon_id) values("Food",4);
 insert into icons(url) values("20336031736200-821.jpg");
-insert into categories(name,icon_id) values("House",1);
+insert into categories(name,icon_id) values("House",5);
 
 INSERT INTO `users` VALUES (1,'martok11','$2a$10$os.ZipCPVC.vDcvaRq89pupmkqMMCTXlhoCUes79/rlfRJG2C.b4S','lukasz6@abv.bg','Martin','Kuyumdjiev','2022-10-23 23:07:21'),
 (2,'vasil1122','$2a$10$mIUHELmoEnv9.ZH8Y.IiyOxd3ERsMKKihZYUqUerjEgfqYC6NitpW','vasil.vazonov@abv.bg','Vasko','Vazonov','2022-10-25 14:03:01');
-INSERT INTO `accounts` VALUES (1,'personal',1,1,17000),(2,'personal',1,2,22300);
+
 
 INSERT INTO `transfers` VALUES (1,600,1,2,1,'2022-10-23 22:17:13',NULL),
 (2,600,1,2,1,'2022-10-23 22:17:31',NULL),

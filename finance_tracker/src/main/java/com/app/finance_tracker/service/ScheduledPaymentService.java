@@ -8,21 +8,18 @@ import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentRes
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.ScheduledPayment;
-import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 
 @Service
 public class ScheduledPaymentService extends AbstractService {
-    public ScheduledPaymentResponseDto createScheduledPayment(long id, ScheduledPaymentCreateDto scheduledPaymentCreateDto, long userId) {
+    public ScheduledPaymentResponseDto createScheduledPayment(ScheduledPaymentCreateDto scheduledPaymentCreateDto, long userId) {
         //validate user as well
-        checkIfAccountBelongsToUser(id, userId);
-        Account account = getAccountById(id);
+        checkIfAccountBelongsToUser(scheduledPaymentCreateDto.getAccountId(), userId);
+        Account account = getAccountById(scheduledPaymentCreateDto.getAccountId());
         if (!isValidAmount(scheduledPaymentCreateDto.getAmount())) {
             throw new BadRequestException("Money should be higher than 0");
         }
@@ -63,18 +60,22 @@ public class ScheduledPaymentService extends AbstractService {
         if (!accountRepository.existsById(id)) {
             throw new NotFoundException("Account does not exist");
         }
-        List<ScheduledPaymentResponseDto> list = scheduledPaymentRepository.findAllByAccountId(id);
-        return list;
+        List<ScheduledPayment> list = scheduledPaymentRepository.findAllByAccountId(id);
+        List<ScheduledPaymentResponseDto> responseDtos = list.stream().map(scheduledPayment ->
+                modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class)).toList();
+        return responseDtos;
+
     }
 
-    public void deleteScheduledPayment(long accountId, long id, long userId) {
+    public String deleteScheduledPayment(long accountId, long id, long userId) {
         checkIfAccountBelongsToUser(accountId, userId);
         ScheduledPayment payment = getScheduledPaymentById(id);
         scheduledPaymentRepository.delete(payment);
+        return "Scheduled payment '"+ payment.getTitle() +"' deleted successfully";
     }
 
-    public ScheduledPaymentResponseDto editPayment(long accountId, long id, ScheduledPaymentCreateDto scheduledPaymentEditDto, long userId) {
-        checkIfAccountBelongsToUser(accountId, userId);
+    public ScheduledPaymentResponseDto editPayment(long id, ScheduledPaymentCreateDto scheduledPaymentEditDto, long userId) {
+        checkIfAccountBelongsToUser(scheduledPaymentEditDto.getAccountId(), userId);
         ScheduledPayment scheduledPayment = getScheduledPaymentById(id);
         if (scheduledPayment.getCategory().getId() != scheduledPaymentEditDto.getCategoryId()) {
             Category category = getCategoryById(scheduledPaymentEditDto.getCategoryId());
@@ -89,20 +90,16 @@ public class ScheduledPaymentService extends AbstractService {
     @Scheduled(cron = "0 9 * * * *")
     public void doScheduledPayment(){
         //get all scheduled payments
-        new Thread(() ->{
             System.out.println(LocalDate.now());
-        List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.findAll().stream().filter(sp -> sp.getDueDate().equals(LocalDate.now())).toList();
-        for (ScheduledPayment sp: scheduledPayments) {
-            if (sp.getAccount().getBalance()>=sp.getAmount()){
+            List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.findAll().stream().filter(sp -> sp.getDueDate().equals(LocalDate.now())).toList();
+            for (ScheduledPayment sp: scheduledPayments) {
+                if (sp.getAccount().getBalance()>=sp.getAmount()){
 
             }
         }
-
         //if date is today
             //check for enough money
             //if enough make transaction otherwise dont make
         //send email of result
-        
-        }).start();
     }
 }

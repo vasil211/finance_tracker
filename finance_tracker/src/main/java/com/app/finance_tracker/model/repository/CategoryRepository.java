@@ -20,5 +20,8 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
 
     List<Category> findAllByUserIsNull();
 
+    void deleteAllByUserId(long userId);
+
     List<Category> findAllByUserIsNullOrUserId(long userId);
+
 }

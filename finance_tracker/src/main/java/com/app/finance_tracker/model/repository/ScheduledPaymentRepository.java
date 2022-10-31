@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface ScheduledPaymentRepository extends JpaRepository<ScheduledPayment,Long> {
 
-    List<ScheduledPaymentResponseDto> findAllByAccountId(long accountId);
+    List<ScheduledPayment> findAllByAccountId(long accountId);
+
+    void deleteAllByAccountId(long accountId);
 }

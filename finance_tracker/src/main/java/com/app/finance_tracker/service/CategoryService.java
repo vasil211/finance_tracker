@@ -130,4 +130,12 @@ public class CategoryService extends AbstractService {
         messageDTO.setMessage("Category deleted successfully");
         return messageDTO;
     }
+
+    public void deleteAllCategoriesForAccount(long id) {
+        List<Category> categories = categoryRepository.findAllByUserId(id);
+        categories.forEach(category -> {
+            categoryRepository.delete(category);
+            iconService.deleteIcon(category.getIcon().getId());
+        });
+    }
 }

@@ -15,5 +15,6 @@ public interface TransferRepository extends JpaRepository<Transfer, Long> {
     List<Transfer> findAllByReceiverId(long accountId);
     List<Transfer> findAllBySenderId(long accountId);
 
+    void deleteAllBySenderIdAndReceiverId(long senderId, long receiverId);
 }
 

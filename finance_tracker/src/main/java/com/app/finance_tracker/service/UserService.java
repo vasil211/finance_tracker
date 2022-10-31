@@ -62,7 +62,6 @@ public class UserService extends AbstractService {
     }
 
     public void sendEmails() {
-        new Thread(() -> {
             List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
             String subject = "Finance Tracker";
             for (User user : users) {
@@ -73,6 +72,5 @@ public class UserService extends AbstractService {
                         "Finance Tracker Team";
                 emailService.sendSimpleMessage(user.getEmail(), subject, text);
             }
-        }).start();
     }
 }

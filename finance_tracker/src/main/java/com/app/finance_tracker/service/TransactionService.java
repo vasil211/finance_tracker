@@ -1,33 +1,22 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.dto.categoryDTO.CategoryForReturnDTO;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionFilteredDto;
 import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
-import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
 import com.app.finance_tracker.model.dto.transactionDTO.TransactionReturnDto;
 import com.app.finance_tracker.model.repository.*;
 import com.app.finance_tracker.model.utility.PdfGenerator;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.SneakyThrows;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +51,7 @@ public class TransactionService extends AbstractService {
     }
 
     //TODO FIX THIS TO GET THE LIST WITH QUERY
-    public List<TransactionReturnDto> getAllByUserId(long userId) {
+    public List<TransactionReturnDto> getAllForUser(long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("user not found.");
         }
