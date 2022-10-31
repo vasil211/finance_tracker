@@ -12,7 +12,7 @@ import org.springframework.web.servlet.function.ServerRequest;
 
 
 @Service
-public class CurrencyExchangeService {
+public class CurrencyExchangeService  extends AbstractService{
     @Autowired
     private RestTemplate restTemplate;
 

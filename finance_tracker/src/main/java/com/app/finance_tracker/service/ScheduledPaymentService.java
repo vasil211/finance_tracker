@@ -8,11 +8,13 @@ import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentRes
 import com.app.finance_tracker.model.entities.Account;
 import com.app.finance_tracker.model.entities.Category;
 import com.app.finance_tracker.model.entities.ScheduledPayment;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.List;
 
 @Service
@@ -24,7 +26,8 @@ public class ScheduledPaymentService extends AbstractService {
         if (!isValidAmount(scheduledPaymentCreateDto.getAmount())) {
             throw new BadRequestException("Money should be higher than 0");
         }
-        if (scheduledPaymentCreateDto.getDueDate().before(Date.valueOf(LocalDate.now()))) {
+        if (scheduledPaymentCreateDto.getDueDate().isBefore(LocalDate.now())){
+
             throw new BadRequestException("Invalid date input");
         }
         Category category = getCategoryById(scheduledPaymentCreateDto.getCategoryId());
@@ -84,10 +87,22 @@ public class ScheduledPaymentService extends AbstractService {
 
     //create method to send email on day of scheduled payment
     @Scheduled(cron = "0 9 * * * *")
-    public void doScheduledPayment() {
+    public void doScheduledPayment(){
+        //get all scheduled payments
         new Thread(() ->{
-            //send email
-            //List<ScheduledPayment> list..
+            System.out.println(LocalDate.now());
+        List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.findAll().stream().filter(sp -> sp.getDueDate().equals(LocalDate.now())).toList();
+        for (ScheduledPayment sp: scheduledPayments) {
+            if (sp.getAccount().getBalance()>=sp.getAmount()){
+
+            }
+        }
+
+        //if date is today
+            //check for enough money
+            //if enough make transaction otherwise dont make
+        //send email of result
+        
         }).start();
     }
 }
