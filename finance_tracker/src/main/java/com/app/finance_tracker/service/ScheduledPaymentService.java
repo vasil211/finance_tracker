@@ -16,51 +16,51 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
-public class ScheduledPaymentService extends AbstractService{
+public class ScheduledPaymentService extends AbstractService {
     public ScheduledPaymentResponseDto createScheduledPayment(long id, ScheduledPaymentCreateDto scheduledPaymentCreateDto, long userId) {
         //validate user as well
         checkIfAccountBelongsToUser(id, userId);
-        Account account= getAccountById(id);
-        if (!isValidAmount(scheduledPaymentCreateDto.getAmount())){
+        Account account = getAccountById(id);
+        if (!isValidAmount(scheduledPaymentCreateDto.getAmount())) {
             throw new BadRequestException("Money should be higher than 0");
         }
-        if (scheduledPaymentCreateDto.getDueDate().before(Date.valueOf(LocalDate.now()))){
+        if (scheduledPaymentCreateDto.getDueDate().before(Date.valueOf(LocalDate.now()))) {
             throw new BadRequestException("Invalid date input");
         }
         Category category = getCategoryById(scheduledPaymentCreateDto.getCategoryId());
 
         ScheduledPayment scheduledPayment = new ScheduledPayment();
-        setFields(scheduledPaymentCreateDto,scheduledPayment);
+        setFields(scheduledPaymentCreateDto, scheduledPayment);
         scheduledPayment.setAccount(account);
         scheduledPayment.setCategory(category);
         scheduledPaymentRepository.save(scheduledPayment);
-        return  modelMapper.map(scheduledPayment,ScheduledPaymentResponseDto.class);
+        return modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class);
     }
 
-    private void setFields(ScheduledPaymentCreateDto dto,ScheduledPayment scheduledPayment) {
+    private void setFields(ScheduledPaymentCreateDto dto, ScheduledPayment scheduledPayment) {
         scheduledPayment.setAmount(dto.getAmount());
         scheduledPayment.setDueDate(dto.getDueDate());
         scheduledPayment.setTitle(dto.getTitle());
     }
 
-    public ScheduledPaymentResponseDto getPaymentById(long accountId,long id, long userId) {
+    public ScheduledPaymentResponseDto getPaymentById(long accountId, long id, long userId) {
         checkIfAccountBelongsToUser(accountId, userId);
-        if (!accountRepository.existsById(accountId)){
+        if (!accountRepository.existsById(accountId)) {
             throw new NotFoundException("Account does not exist");
         }
-        ScheduledPayment scheduledPayment= getScheduledPaymentById(id);
-        if (scheduledPayment.getAccount().getId()!=accountId){
+        ScheduledPayment scheduledPayment = getScheduledPaymentById(id);
+        if (scheduledPayment.getAccount().getId() != accountId) {
             throw new UnauthorizedException("Dont have permission to view this page");
         }
-        return modelMapper.map(scheduledPayment,ScheduledPaymentResponseDto.class);
+        return modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class);
     }
 
     public List<ScheduledPaymentResponseDto> getAllScheduledPaymentsByAccId(long id, long userId) {
         checkIfAccountBelongsToUser(id, userId);
-        if (!accountRepository.existsById(id)){
+        if (!accountRepository.existsById(id)) {
             throw new NotFoundException("Account does not exist");
         }
-        List<ScheduledPaymentResponseDto> list  = scheduledPaymentRepository.findAllByAccountId(id);
+        List<ScheduledPaymentResponseDto> list = scheduledPaymentRepository.findAllByAccountId(id);
         return list;
     }
 
@@ -73,19 +73,21 @@ public class ScheduledPaymentService extends AbstractService{
     public ScheduledPaymentResponseDto editPayment(long accountId, long id, ScheduledPaymentCreateDto scheduledPaymentEditDto, long userId) {
         checkIfAccountBelongsToUser(accountId, userId);
         ScheduledPayment scheduledPayment = getScheduledPaymentById(id);
-        if (scheduledPayment.getCategory().getId() != scheduledPaymentEditDto.getCategoryId()){
+        if (scheduledPayment.getCategory().getId() != scheduledPaymentEditDto.getCategoryId()) {
             Category category = getCategoryById(scheduledPaymentEditDto.getCategoryId());
             scheduledPayment.setCategory(category);
         }
-        setFields(scheduledPaymentEditDto,scheduledPayment);
+        setFields(scheduledPaymentEditDto, scheduledPayment);
         scheduledPaymentRepository.save(scheduledPayment);
-        return modelMapper.map(scheduledPayment,ScheduledPaymentResponseDto.class);
+        return modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class);
     }
 
     //create method to send email on day of scheduled payment
     @Scheduled(cron = "0 9 * * * *")
-    public void doScheduledPayment(){
-        //List<ScheduledPayment> list..
-
+    public void doScheduledPayment() {
+        new Thread(() ->{
+            //send email
+            //List<ScheduledPayment> list..
+        }).start();
     }
 }

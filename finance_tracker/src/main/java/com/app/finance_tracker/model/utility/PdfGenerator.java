@@ -27,35 +27,49 @@ import java.util.Map;
 public class PdfGenerator<T> {
 
     @SneakyThrows
-    public void generatePdfFile(List<T> list, HttpServletResponse response, Map<CurrencyForReturnDTO, Double> totalAmounts) {
+    public void generatePdfFile(List<T> list, HttpServletResponse response,
+                                Map<CurrencyForReturnDTO, Double> totalAmountsSend,
+                                Map<CurrencyForReturnDTO, Double> totalAmountsReceived) {
         Document document = new Document();
-        PdfWriter.getInstance(document,new FileOutputStream("dataOutput.pdf"));
+        String fileName = "reference-" + System.currentTimeMillis() + ".pdf";
+        PdfWriter.getInstance(document, new FileOutputStream(fileName));
         document.open();
-        Font font = FontFactory.getFont(FontFactory.HELVETICA,14, BaseColor.BLACK);
-        for (T data: list) {
+        Font font = FontFactory.getFont(FontFactory.HELVETICA, 14, BaseColor.BLACK);
+        for (T data : list) {
             String str = data.toString();
-            document.add(new Paragraph(str,font));
+            document.add(new Paragraph(str, font));
             document.add(new Chunk(Chunk.NEWLINE));
         }
-        document.add(new Paragraph("Total amount spend:",font));
-        document.add(new Chunk(Chunk.NEWLINE));
-
-        for (Map.Entry<CurrencyForReturnDTO, Double> set :
-                totalAmounts.entrySet()) {
-            String str = set.getKey().getCode() + " : " + set.getValue() + set.getKey().getSymbol();
-            document.add(new Paragraph(str,font));
+        if (totalAmountsSend != null && totalAmountsSend.size() > 0) {
+            document.add(new Paragraph("Total amount spend:", font));
             document.add(new Chunk(Chunk.NEWLINE));
-        }
 
+            for (Map.Entry<CurrencyForReturnDTO, Double> set :
+                    totalAmountsSend.entrySet()) {
+                String str = set.getKey().getCode() + " : -" + set.getValue() + set.getKey().getSymbol();
+                document.add(new Paragraph(str, font));
+                document.add(new Chunk(Chunk.NEWLINE));
+            }
+        }
+        if (totalAmountsReceived != null && totalAmountsReceived.size() > 0) {
+            document.add(new Paragraph("Total amount received:", font));
+            document.add(new Chunk(Chunk.NEWLINE));
+
+            for (Map.Entry<CurrencyForReturnDTO, Double> set :
+                    totalAmountsReceived.entrySet()) {
+                String str = set.getKey().getCode() + " : +" + set.getValue() + set.getKey().getSymbol();
+                document.add(new Paragraph(str, font));
+                document.add(new Chunk(Chunk.NEWLINE));
+            }
+        }
         document.close();
-        File f = new File("dataOutput.pdf");
-        if(!f.exists()){
+        File f = new File(fileName);
+        if (!f.exists()) {
             throw new NotFoundException("File does not exist!");
         }
         response.setContentType(Files.probeContentType(f.toPath()));
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String currentDateTime = dateFormat.format(new Date());
-        response.setHeader("Content-Disposition", "attachment; filename=" + f.getName() + currentDateTime+".pdf");
+
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".pdf");
         response.setContentLength((int) f.length());
         Files.copy(f.toPath(), response.getOutputStream());
         f.delete();

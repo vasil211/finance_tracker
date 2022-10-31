@@ -165,16 +165,16 @@ public class TransactionService extends AbstractService{
 
     public void downloadTransactionsPdf(long userId, TransactionFilteredDto filteredDto, HttpServletResponse response) {
         List<TransactionReturnDto> transactions = getFilteredTransactions(userId,filteredDto);
-        Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
+        Map<CurrencyForReturnDTO, Double> totalAmountsSend = new HashMap<>();
         for (TransactionReturnDto transaction : transactions) {
-            if (totalAmounts.containsKey(transaction.getAccount().getCurrency())) {
-                totalAmounts.put(transaction.getAccount().getCurrency(),
-                        totalAmounts.get(transaction.getAccount().getCurrency()) + transaction.getAmount());
+            if (totalAmountsSend.containsKey(transaction.getAccount().getCurrency())) {
+                totalAmountsSend.put(transaction.getAccount().getCurrency(),
+                        totalAmountsSend.get(transaction.getAccount().getCurrency()) + transaction.getAmount());
             }else {
-                totalAmounts.put(transaction.getAccount().getCurrency(),transaction.getAmount());
+                totalAmountsSend.put(transaction.getAccount().getCurrency(),transaction.getAmount());
             }
         }
         PdfGenerator<TransactionReturnDto> generator = new PdfGenerator<>();
-        generator.generatePdfFile(transactions,response, totalAmounts);
+        generator.generatePdfFile(transactions,response, totalAmountsSend, new HashMap<>());
     }
 }

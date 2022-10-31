@@ -163,16 +163,27 @@ public class TransferService extends AbstractService {
     @SneakyThrows
     public void downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
         List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);
-        Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
+        Map<CurrencyForReturnDTO, Double> totalAmountsSend = new HashMap<>();
+        Map<CurrencyForReturnDTO, Double> totalAmountsReceived = new HashMap<>();
         for (TransferForReturnDTO transfer : transfers) {
-            if (totalAmounts.containsKey(transfer.getCurrency())) {
-                totalAmounts.put(transfer.getCurrency(), totalAmounts.get(transfer.getCurrency())
-                        + transfer.getAmount());
-            } else {
-                totalAmounts.put(transfer.getCurrency(), transfer.getAmount());
+            if(transfer.getSender().getId() == userID){
+                if (totalAmountsSend.containsKey(transfer.getCurrency())) {
+                    totalAmountsSend.put(transfer.getCurrency(), totalAmountsSend.get(transfer.getCurrency())
+                            + transfer.getAmount());
+                } else {
+                    totalAmountsSend.put(transfer.getCurrency(), transfer.getAmount());
+                }
+            }
+            if(transfer.getReceiver().getId() == userID){
+                if (totalAmountsReceived.containsKey(transfer.getCurrency())) {
+                    totalAmountsReceived.put(transfer.getCurrency(), totalAmountsReceived.get(transfer.getCurrency())
+                            + transfer.getAmount());
+                } else {
+                    totalAmountsReceived.put(transfer.getCurrency(), transfer.getAmount());
+                }
             }
         }
         PdfGenerator<TransferForReturnDTO> generator = new PdfGenerator<>();
-        generator.generatePdfFile(transfers, resp, totalAmounts);
+        generator.generatePdfFile(transfers, resp, totalAmountsSend, totalAmountsReceived);
     }
 }

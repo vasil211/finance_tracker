@@ -60,17 +60,19 @@ public class UserService extends AbstractService {
                 .map(user -> modelMapper.map(user, UserWithoutPasswordDTO.class))
                 .toList();
     }
-    @Async
+
     public void sendEmails() {
-        List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
-        String subject = "Finance Tracker";
-        for (User user : users) {
-            long days = LocalDateTime.now().getDayOfYear() - user.getLastLogin().getDayOfYear();
-            String text = "Hello " + user.getFirstName() + " " + user.getLastName() + ",\n" +
-                    "You haven't logged in for " + days + " days. We hope you are doing well.\n" +
-                    "Best regards,\n" +
-                    "Finance Tracker Team";
-            emailService.sendSimpleMessage(user.getEmail(), subject, text);
-        }
+        new Thread(() -> {
+            List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
+            String subject = "Finance Tracker";
+            for (User user : users) {
+                long days = LocalDateTime.now().getDayOfYear() - user.getLastLogin().getDayOfYear();
+                String text = "Hello " + user.getFirstName() + " " + user.getLastName() + ",\n" +
+                        "You haven't logged in for " + days + " days. We hope you are doing well.\n" +
+                        "Best regards,\n" +
+                        "Finance Tracker Team";
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+            }
+        }).start();
     }
 }

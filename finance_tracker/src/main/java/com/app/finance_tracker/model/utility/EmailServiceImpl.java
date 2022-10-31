@@ -11,7 +11,6 @@ public class EmailServiceImpl {
 
     @Autowired
     private JavaMailSender emailSender;
-    @Async
     public void sendSimpleMessage(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("s14financetracker@gmail.com");
