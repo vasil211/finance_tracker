@@ -48,7 +48,7 @@ public class TransferDAO {
             sb.append(" AND currency_id IN (:currency)");
             map.addValue("currency", currencies);
         }
-        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+        sb.append(" AND CAST(date_of_transfer as DATE) BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
                 "ORDER BY date_of_transfer DESC");
 
         String query = sb.toString();
@@ -95,7 +95,7 @@ public class TransferDAO {
             sb.append(" AND currency_id IN (:currency)");
             map.addValue("currency", currencies);
         }
-        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+        sb.append(" AND CAST(date_of_transfer as DATE) BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
                 "ORDER BY date_of_transfer DESC");
 
         return namedJdbcTemplate.query(
@@ -111,7 +111,7 @@ public class TransferDAO {
                         rs.getString("description")));
     }
 
-    public List<Transfer> getAll(List<Long> ownAccountsIds, List<Long> fromAccountsIds, List<Long> toAccountsIds, LocalDate fromDate,
+    public List<Transfer> getAll(List<Long> ownAccountsIds, List<Long> otherAccountsIds, LocalDate fromDate,
                                  LocalDate toDate, double fromAmount, double toAmount, List<Long> currencies) {
         MapSqlParameterSource map = new MapSqlParameterSource();
         if(toAmount == 0){
@@ -132,29 +132,29 @@ public class TransferDAO {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
                 "FROM transfers WHERE from_user_account_id IN (:own)");
-        if (toAccountsIds.size() > 0) {
+        if (otherAccountsIds.size() > 0) {
             sb.append(" AND to_user_account_id IN (:to)");
-            map.addValue("to", toAccountsIds);
+            map.addValue("to", otherAccountsIds);
         }
         if (currencies.size() > 0) {
             sb.append(" AND currency_id IN (:currency)");
             map.addValue("currency", currencies);
         }
-        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount ");
+        sb.append(" AND CAST(date_of_transfer as DATE) BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount ");
         sb.append(" UNION ");
 
         sb.append("SELECT id,amount,currency_id,from_user_account_id,to_user_account_id,date_of_transfer,description " +
                 "FROM transfers WHERE to_user_account_id IN (:own)");
-        if (toAccountsIds.size() > 0) {
+        if (otherAccountsIds.size() > 0) {
             sb.append(" AND from_user_account_id IN (:from)");
-            map.addValue("from", toAccountsIds);
+            map.addValue("from", otherAccountsIds);
         }
         if (currencies.size() > 0) {
             sb.append(" AND currency_id IN (:currency)");
         }
-        sb.append(" AND date_of_transfer BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
+        sb.append(" AND CAST(date_of_transfer as DATE) BETWEEN :fromDate AND :toDate AND amount BETWEEN :fromAmount AND :toAmount " +
                 "ORDER BY date_of_transfer DESC");
-
+        System.out.println(sb.toString());
         return namedJdbcTemplate.query(
                 sb.toString(),
                 map,

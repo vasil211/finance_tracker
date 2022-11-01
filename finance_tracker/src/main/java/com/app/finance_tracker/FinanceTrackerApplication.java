@@ -17,7 +17,6 @@ import javax.sql.DataSource;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableAsync
 public class FinanceTrackerApplication {
 
 	public static void main(String[] args) {

@@ -51,12 +51,13 @@ public class TransferService extends AbstractService {
 
     @Transactional
     private Transfer doTransfer(TransferDTO transferDTO, Account sender, Account receiver) {
-        // exchange currency if needed
         double amount = transferDTO.getAmount();
         if (sender.getCurrency().getId() != receiver.getCurrency().getId()) {
             Currency senderCurrency = sender.getCurrency();
             Currency receiverCurrency = receiver.getCurrency();
-            CurrencyExchangeDto dto = currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(), amount);
+            CurrencyExchangeDto dto =
+                    currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(),
+                            amount);
             amount = dto.getResult();
         }
         sender.removeFromBalance(transferDTO.getAmount());
@@ -106,15 +107,6 @@ public class TransferService extends AbstractService {
         return transferForReturnDTOS;
     }
 
-    public List<TransferForReturnDTO> getAllReceivedTransfersFromAccount(long id, long fromId, long userId) {
-        checkIfAccountBelongsToUser(id, userId);
-        List<Transfer> transfers = transferRepository.findAllByReceiverIdAndSenderId(id, fromId);
-        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-        for (Transfer transfer : transfers) {
-            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
-        }
-        return transferForReturnDTOS;
-    }
 
     private TransferForReturnDTO mapTransferForReturnDTO(Transfer transfer) {
         TransferForReturnDTO transferForReturnDTO = new TransferForReturnDTO();
@@ -129,7 +121,7 @@ public class TransferService extends AbstractService {
     }
 
     public List<TransferForReturnDTO> getAllTransfersFiltered(TransferFilteredDto filteredDto, long userID) {
-        List<Transfer> transfers = null;
+        List<Transfer> transfers = new ArrayList<>();
         List<Long> allOwnAccounts;
         if (filteredDto.getOwnAccountsIds().size() == 0) {
             allOwnAccounts = accountRepository.findAllByUserId(userID).stream().map(Account::getId).toList();
@@ -137,42 +129,48 @@ public class TransferService extends AbstractService {
             allOwnAccounts = filteredDto.getOwnAccountsIds();
         }
         switch (filteredDto.getChoice()) {
-            case "sent" -> transfers = transferDAO.getAllSent(allOwnAccounts, filteredDto.getFromAccountsIds(),
+            case "sent" -> transfers = transferDAO.getAllSent(allOwnAccounts, filteredDto.getOtherAccountsIds(),
                     filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
                     filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
-            case "received" -> transfers = transferDAO.getAllReceived(allOwnAccounts, filteredDto.getToAccountsIds(),
+            case "received" -> transfers = transferDAO.getAllReceived(allOwnAccounts, filteredDto.getOtherAccountsIds(),
                     filteredDto.getFromDate(), filteredDto.getToDate(), filteredDto.getFromAmount(),
                     filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
-            case "all" -> transfers = transferDAO.getAll(allOwnAccounts, filteredDto.getFromAccountsIds(),
-                    filteredDto.getToAccountsIds(), filteredDto.getFromDate(), filteredDto.getToDate(),
+            case "all" -> transfers = transferDAO.getAll(allOwnAccounts, filteredDto.getOtherAccountsIds(),
+                    filteredDto.getFromDate(), filteredDto.getToDate(),
                     filteredDto.getFromAmount(), filteredDto.getToAmount(), filteredDto.getCurrenciesIds());
             default -> throw new BadRequestException("Invalid choice");
         }
-        if(transfers != null){
-
-            List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-            for (Transfer transfer : transfers) {
-                transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
-            }
-            return transferForReturnDTOS;
-        }else {
-            throw new BadRequestException("No transfers found");
+        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
+        for (Transfer transfer : transfers) {
+            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
         }
+        return transferForReturnDTOS;
     }
 
     @SneakyThrows
     public void downloadPdf(HttpServletResponse resp, TransferFilteredDto filteredDto, long userID) {
         List<TransferForReturnDTO> transfers = getAllTransfersFiltered(filteredDto, userID);
-        Map<CurrencyForReturnDTO, Double> totalAmounts = new HashMap<>();
+        Map<CurrencyForReturnDTO, Double> totalAmountsSend = new HashMap<>();
+        Map<CurrencyForReturnDTO, Double> totalAmountsReceived = new HashMap<>();
         for (TransferForReturnDTO transfer : transfers) {
-            if (totalAmounts.containsKey(transfer.getCurrency())) {
-                totalAmounts.put(transfer.getCurrency(), totalAmounts.get(transfer.getCurrency())
-                        + transfer.getAmount());
-            } else {
-                totalAmounts.put(transfer.getCurrency(), transfer.getAmount());
+            if (transfer.getSender().getId() == userID) {
+                if (totalAmountsSend.containsKey(transfer.getCurrency())) {
+                    totalAmountsSend.put(transfer.getCurrency(), totalAmountsSend.get(transfer.getCurrency())
+                            + transfer.getAmount());
+                } else {
+                    totalAmountsSend.put(transfer.getCurrency(), transfer.getAmount());
+                }
+            }
+            if (transfer.getReceiver().getId() == userID) {
+                if (totalAmountsReceived.containsKey(transfer.getCurrency())) {
+                    totalAmountsReceived.put(transfer.getCurrency(), totalAmountsReceived.get(transfer.getCurrency())
+                            + transfer.getAmount());
+                } else {
+                    totalAmountsReceived.put(transfer.getCurrency(), transfer.getAmount());
+                }
             }
         }
         PdfGenerator<TransferForReturnDTO> generator = new PdfGenerator<>();
-        generator.generatePdfFile(transfers, resp, totalAmounts);
+        generator.generatePdfFile(transfers, resp, totalAmountsSend, totalAmountsReceived);
     }
 }

@@ -7,8 +7,7 @@ import java.util.List;
 
 @Data
 public class TransferFilteredDto {
-    private List<Long> fromAccountsIds;
-    private List<Long> toAccountsIds;
+    private List<Long> otherAccountsIds;
     private List<Long> ownAccountsIds;
     private double fromAmount;
     private double toAmount;

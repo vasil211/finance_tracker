@@ -9,6 +9,9 @@ import com.app.finance_tracker.model.dto.accountDTO.AccountForReturnDTO;
 import com.app.finance_tracker.model.dto.accountDTO.AccountForUpdateDTO;
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyForReturnDTO;
 import com.app.finance_tracker.model.entities.Account;
+import com.app.finance_tracker.model.exceptions.NotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +19,13 @@ import java.util.List;
 @Service
 public class AccountService extends AbstractService {
 
-    public AccountForReturnDTO addAccount(AccountCreateDTO accountDTO) {
+    @Autowired
+    private CategoryService categoryService;
+    public AccountForReturnDTO addAccount(AccountCreateDTO accountDTO, long userId) {
         accountValidation.validateAccountForCreation(accountDTO);
         Account account = new Account();
         account.setName(accountDTO.getName());
-        account.setUser(getUserById(accountDTO.getUserId()));
+        account.setUser(getUserById(userId));
         account.setCurrency(getCurrencyById(accountDTO.getCurrencyId()));
         accountRepository.save(account);
         AccountForReturnDTO accountForReturnDTO = modelMapper.map(account, AccountForReturnDTO.class);
@@ -60,14 +65,17 @@ public class AccountService extends AbstractService {
 
     public AccountForReturnDTO getAccount(long id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Invalid account id"));
+                .orElseThrow(() -> new NotFoundException("Account not found"));
         return modelMapper.map(account, AccountForReturnDTO.class);
     }
-
+    @Transactional
     public MessageDTO deleteAccount(long id, long userId) {
-        // todo before delete, delete transfers,transactions and scheduled payments
         checkIfAccountBelongsToUser(id,userId);
         Account account = getAccountById(id);
+        transferRepository.deleteAllBySenderIdAndReceiverId(account.getId(), account.getId());
+        scheduledPaymentRepository.deleteAllByAccountId(account.getId());
+        transactionRepository.deleteAllByAccountId(account.getId());
+        categoryService.deleteAllCategoriesForAccount(account.getId());
         accountRepository.delete(account);
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage("Account deleted successfully");

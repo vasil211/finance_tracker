@@ -1,12 +1,10 @@
 package com.app.finance_tracker.controller;
 
-import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
-import com.app.finance_tracker.model.repository.CurrencyRepository;
 import com.app.finance_tracker.model.utility.EmailServiceImpl;
 import com.app.finance_tracker.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,8 +19,6 @@ import java.util.List;
 @RestController
 public class UserController extends AbstractController {
 
-    /*@Autowired
-    private CurrencyRepository currencyRepository;*/
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
@@ -70,9 +66,9 @@ public class UserController extends AbstractController {
 
     // todo forgotten password
 
-    @Scheduled(cron = "0 9 * * * *")
+    @Scheduled(cron = "0 0 9 * * *")
     public void sendEmail() {
-        userService.sendEmails();
+        userService.sendEmailsNotLoggedInAWhile();
     }
 
 //    @Autowired

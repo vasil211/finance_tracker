@@ -22,43 +22,43 @@ public class AccountController extends AbstractController {
     private AccountService accountService;
 
 
-    @PostMapping("/account")
+    @PostMapping("/accounts")
     public ResponseEntity<AccountForReturnDTO> addAccount(@RequestBody AccountCreateDTO accountDTO, HttpServletRequest request) {
-        checkIfLogged(request);
-        AccountForReturnDTO accountForReturnDTO = accountService.addAccount(accountDTO);
+        long userId = checkIfLoggedAndReturnUserId(request);
+        AccountForReturnDTO accountForReturnDTO = accountService.addAccount(accountDTO, userId);
         return ResponseEntity.ok(accountForReturnDTO);
     }
 
-    @GetMapping("/account/all")
+    @GetMapping("/accounts/all")
     public ResponseEntity<List<AccountForReturnDTO>> getAllAccountsForUser(HttpServletRequest request) {
         long id = checkIfLoggedAndReturnUserId(request);
         List<AccountForReturnDTO> accountsDTO = accountService.getAllAccountsForUser(id);
         return ResponseEntity.ok(accountsDTO);
     }
 
-    @PutMapping("/account")
+    @PutMapping("/accounts")
     public ResponseEntity<AccountForReturnDTO> updateAccount(@RequestBody AccountForUpdateDTO accountDTO, HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         AccountForReturnDTO account = accountService.updateAccount(accountDTO, userId);
         return ResponseEntity.ok(account);
     }
 
-    @PutMapping("/account/fill")
+    @PutMapping("/accounts/fill")
     public ResponseEntity<AccountForReturnDTO> addMoneyToAccount(@RequestBody AccountAddMoneyDTO accountDTO, HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         AccountForReturnDTO account = accountService.addMoneyToAccount(accountDTO, userId);
         return ResponseEntity.ok(account);
     }
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/accounts/{id}")
     public ResponseEntity<AccountForReturnDTO> getAccount(@PathVariable long id, HttpServletRequest request) {
-        checkIfLogged(request);
-        accountService.checkIfAccountBelongsToUser(id, Long.parseLong(request.getParameter(USER_ID)));
+        long userId= checkIfLoggedAndReturnUserId(request);
+        accountService.checkIfAccountBelongsToUser(id, userId);
         AccountForReturnDTO account = accountService.getAccount(id);
         return ResponseEntity.ok(account);
     }
 
-    @DeleteMapping("/account/{id}")
+    @DeleteMapping("/accounts/{id}")
     public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id, HttpServletRequest request) {
         long userId = checkIfLoggedAndReturnUserId(request);
         MessageDTO message = accountService.deleteAccount(id, userId);

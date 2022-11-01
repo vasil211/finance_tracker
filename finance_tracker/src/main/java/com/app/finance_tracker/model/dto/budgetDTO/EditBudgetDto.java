@@ -13,7 +13,6 @@ public class EditBudgetDto {
     private Date fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date toDate;
-    private long userId;
     private long categoryId;
     private long currencyId;
 }

@@ -108,8 +108,9 @@ public class CategoryService extends AbstractService {
 
 
     private void checkIfCategoryNameIsTaken(String name, long categoryId, long userId) {
+        Optional<Category> categoryDefault = categoryRepository.findByNameAndUserIsNull(name);
         Optional<Category> category = categoryRepository.findCategoryFromUserByNameAndUserId(name, userId);
-        if(category.isPresent() && category.get().getId() != categoryId){
+        if(categoryDefault.isPresent() || category.isPresent() && category.get().getId() != categoryId){
             throw new BadRequestException("Category name is taken");
         }
     }
@@ -129,5 +130,13 @@ public class CategoryService extends AbstractService {
         MessageDTO messageDTO = new MessageDTO();
         messageDTO.setMessage("Category deleted successfully");
         return messageDTO;
+    }
+
+    public void deleteAllCategoriesForAccount(long id) {
+        List<Category> categories = categoryRepository.findAllByUserId(id);
+        categories.forEach(category -> {
+            categoryRepository.delete(category);
+            iconService.deleteIcon(category.getIcon().getId());
+        });
     }
 }

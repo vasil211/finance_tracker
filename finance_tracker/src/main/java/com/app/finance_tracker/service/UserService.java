@@ -1,13 +1,11 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,17 +58,17 @@ public class UserService extends AbstractService {
                 .map(user -> modelMapper.map(user, UserWithoutPasswordDTO.class))
                 .toList();
     }
-    @Async
-    public void sendEmails() {
-        List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
-        String subject = "Finance Tracker";
-        for (User user : users) {
-            long days = LocalDateTime.now().getDayOfYear() - user.getLastLogin().getDayOfYear();
-            String text = "Hello " + user.getFirstName() + " " + user.getLastName() + ",\n" +
-                    "You haven't logged in for " + days + " days. We hope you are doing well.\n" +
-                    "Best regards,\n" +
-                    "Finance Tracker Team";
-            emailService.sendSimpleMessage(user.getEmail(), subject, text);
-        }
+
+    public void sendEmailsNotLoggedInAWhile() {
+            List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
+            String subject = "Finance Tracker";
+            for (User user : users) {
+                long days = LocalDateTime.now().getDayOfYear() - user.getLastLogin().getDayOfYear();
+                String text = "Hello " + user.getFirstName() + " " + user.getLastName() + ",\n" +
+                        "You haven't logged in for " + days + " days. We hope you are doing well.\n" +
+                        "Best regards,\n" +
+                        "Finance Tracker Team";
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+            }
     }
 }
