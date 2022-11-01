@@ -6,6 +6,7 @@ import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,12 @@ public class UserService extends AbstractService {
         return users.stream()
                 .map(user -> modelMapper.map(user, UserWithoutPasswordDTO.class))
                 .toList();
+    }
+
+    //Second, Minute, Hour, Day of Month, Month, Day(s) of Week, Year(Optional)
+    @Scheduled(cron = "0 0 9 * * *")
+    public void sendEmail() {
+        sendEmailsNotLoggedInAWhile();
     }
 
     public void sendEmailsNotLoggedInAWhile() {

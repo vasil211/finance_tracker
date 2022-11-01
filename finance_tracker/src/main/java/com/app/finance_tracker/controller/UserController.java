@@ -64,12 +64,6 @@ public class UserController extends AbstractController {
         return ResponseEntity.ok(users);
     }
 
-    // todo forgotten password
-
-    @Scheduled(cron = "0 0 9 * * *")
-    public void sendEmail() {
-        userService.sendEmailsNotLoggedInAWhile();
-    }
 
 //    @Autowired
 //    private CurrencyRepository currencyRepository;

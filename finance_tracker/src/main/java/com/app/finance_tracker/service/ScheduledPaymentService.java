@@ -98,8 +98,8 @@ public class ScheduledPaymentService extends AbstractService {
         return modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class);
     }
 
-
-    @Scheduled(cron = "0 9 * * * *")
+    //Second, Minute, Hour, Day of Month, Month, Day(s) of Week, Year(Optional)
+    @Scheduled(cron = "0 0 9 * * *")
     public void doScheduledPayment() {
         System.out.println(LocalDate.now());
         List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.getAllByDueDate(LocalDate.now());

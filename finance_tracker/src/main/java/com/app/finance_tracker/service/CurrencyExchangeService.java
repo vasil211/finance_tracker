@@ -45,7 +45,7 @@ public class CurrencyExchangeService  extends AbstractService{
             return response.getBody();
         }
         else {
-            throw new BadRequestException("Currency exchange API error : " + response.getBody().toString());
+            throw new BadRequestException("Currency exchange API error : " + response.getBody());
         }
     }
 }
