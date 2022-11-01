@@ -30,22 +30,22 @@ public class CurrencyExchangeService  extends AbstractService{
 
         StringBuilder sb = new StringBuilder();
         sb.append("https://api.apilayer.com/exchangerates_data/convert?to=");
-        sb.append(to);
-        sb.append("&from=").append(from).append("&amount=").append(amount);
-        File file = new File("akikey.txt");
+        sb.append(to).append("&from=").append(from).append("&amount=").append(amount);
 
         String url = sb.toString();
         HttpHeaders headers = new HttpHeaders();
         String key = System.getenv("API_KEY");
         headers.set("apikey", key);
+
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<CurrencyExchangeDto> response =
-                restTemplate.exchange(url, HttpMethod.GET, requestEntity, CurrencyExchangeDto.class);
-        if (response.getStatusCode()== HttpStatus.OK){
-            return response.getBody();
+
+        ResponseEntity<CurrencyExchangeDto> response;
+        try{
+            response =
+                    restTemplate.exchange(url, HttpMethod.GET, requestEntity, CurrencyExchangeDto.class);
+        }catch (Exception e){
+            throw new BadRequestException("Currency exchange API error : " + e.getMessage());
         }
-        else {
-            throw new BadRequestException("Currency exchange API error : " + response.getBody());
-        }
+        return response.getBody();
     }
 }
