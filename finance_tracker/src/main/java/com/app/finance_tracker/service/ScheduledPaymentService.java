@@ -1,21 +1,26 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.dto.transactionDTO.CreateTransactionDto;
+import com.app.finance_tracker.model.entities.*;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentCreateDto;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
-import com.app.finance_tracker.model.entities.Account;
-import com.app.finance_tracker.model.entities.Category;
-import com.app.finance_tracker.model.entities.ScheduledPayment;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class ScheduledPaymentService extends AbstractService {
+
+    @Autowired
+    private TransactionService transactionService;
     public ScheduledPaymentResponseDto createScheduledPayment(ScheduledPaymentCreateDto scheduledPaymentCreateDto, long userId) {
         //validate user as well
         checkIfAccountBelongsToUser(scheduledPaymentCreateDto.getAccountId(), userId);
@@ -23,12 +28,19 @@ public class ScheduledPaymentService extends AbstractService {
         if (!isValidAmount(scheduledPaymentCreateDto.getAmount())) {
             throw new BadRequestException("Money should be higher than 0");
         }
-        if (scheduledPaymentCreateDto.getDueDate().isBefore(LocalDate.now())){
+        if (scheduledPaymentCreateDto.getDueDate().isBefore(LocalDate.now())) {
 
             throw new BadRequestException("Invalid date input");
         }
         Category category = getCategoryById(scheduledPaymentCreateDto.getCategoryId());
 
+        if (category.getUser() != null && category.getUser().getId() != userId) {
+            throw new NotFoundException("You dont have such category.");
+        }
+        if (budgetRepository.findBudgetByCategoryIdAndUserId(scheduledPaymentCreateDto.getCategoryId(), userId).isEmpty())
+        {
+            throw new NotFoundException("You dont have budget for this category.");
+        }
         ScheduledPayment scheduledPayment = new ScheduledPayment();
         setFields(scheduledPaymentCreateDto, scheduledPayment);
         scheduledPayment.setAccount(account);
@@ -71,7 +83,7 @@ public class ScheduledPaymentService extends AbstractService {
         checkIfAccountBelongsToUser(accountId, userId);
         ScheduledPayment payment = getScheduledPaymentById(id);
         scheduledPaymentRepository.delete(payment);
-        return "Scheduled payment '"+ payment.getTitle() +"' deleted successfully";
+        return "Scheduled payment '" + payment.getTitle() + "' deleted successfully";
     }
 
     public ScheduledPaymentResponseDto editPayment(long id, ScheduledPaymentCreateDto scheduledPaymentEditDto, long userId) {
@@ -86,20 +98,31 @@ public class ScheduledPaymentService extends AbstractService {
         return modelMapper.map(scheduledPayment, ScheduledPaymentResponseDto.class);
     }
 
-    //create method to send email on day of scheduled payment
-    @Scheduled(cron = "0 9 * * * *")
-    public void doScheduledPayment(){
-        //get all scheduled payments
-            System.out.println(LocalDate.now());
-            List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.findAll().stream().filter(sp -> sp.getDueDate().equals(LocalDate.now())).toList();
-            for (ScheduledPayment sp: scheduledPayments) {
-                if (sp.getAccount().getBalance()>=sp.getAmount()){
 
+    @Scheduled(cron = "0 9 * * * *")
+    public void doScheduledPayment() {
+        System.out.println(LocalDate.now());
+        List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.getAllByDueDate(LocalDate.now());
+        if (!scheduledPayments.isEmpty()) {
+            for (ScheduledPayment sp : scheduledPayments) {
+                if (sp.getAccount().getBalance() >= sp.getAmount()) {
+                    CreateTransactionDto dto = new CreateTransactionDto();
+                    dto.setAmount(sp.getAmount());
+                    dto.setAccountId(sp.getAccount().getId());
+                    dto.setCategoryId(sp.getCategory().getId());
+                    dto.setDescription(sp.getTitle());
+                    transactionService.createTransaction(dto, sp.getAccount().getId(), sp.getAccount().getUser().getId());
+                    emailService.sendSimpleMessage(sp.getAccount().getUser().getEmail(),
+                            "Scheduled payment",
+                            "You have successfully made scheduled payment for '" + sp.getTitle() + "'. Amount: " +
+                                    sp.getAmount() + sp.getAccount().getCurrency().getCode() + " on "
+                                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                } else {
+                    emailService.sendSimpleMessage(sp.getAccount().getUser().getEmail(),
+                            "Scheduled payment failed",
+                            "Scheduled payment '" + sp.getTitle() + "' failed because you dont have enough money on your account");
+                }
             }
         }
-        //if date is today
-            //check for enough money
-            //if enough make transaction otherwise dont make
-        //send email of result
     }
 }

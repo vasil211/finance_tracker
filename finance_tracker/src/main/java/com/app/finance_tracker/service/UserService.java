@@ -1,13 +1,11 @@
 package com.app.finance_tracker.service;
 
-import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.userDTO.UserLoginDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserRegistrationDTO;
 import com.app.finance_tracker.model.dto.userDTO.UserWithoutPasswordDTO;
 import com.app.finance_tracker.model.entities.User;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +59,7 @@ public class UserService extends AbstractService {
                 .toList();
     }
 
-    public void sendEmails() {
+    public void sendEmailsNotLoggedInAWhile() {
             List<User> users = userRepository.findAllByLastLoginBefore(LocalDateTime.now().minusDays(5));
             String subject = "Finance Tracker";
             for (User user : users) {

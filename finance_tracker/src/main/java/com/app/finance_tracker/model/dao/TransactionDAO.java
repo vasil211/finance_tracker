@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -79,8 +78,8 @@ public class TransactionDAO {
                     rs.getString("description")));
     }*/
 
-    public List<Transaction> testFilter(List<Long> accountsIds, double fromAmount, double toAmount,
-                                        LocalDate fromDate, LocalDate toDate,List<Long> categoriesIds){
+    public List<Transaction> getFIlteredTransactions(List<Long> accountsIds, double fromAmount, double toAmount,
+                                                     LocalDate fromDate, LocalDate toDate, List<Long> categoriesIds){
         MapSqlParameterSource map = new MapSqlParameterSource();
         if(toAmount == 0){
             toAmount = Double.MAX_VALUE;

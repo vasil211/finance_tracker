@@ -12,11 +12,13 @@ public class EmailServiceImpl {
     @Autowired
     private JavaMailSender emailSender;
     public void sendSimpleMessage(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("s14financetracker@gmail.com");
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        emailSender.send(message);
+        new Thread(() -> {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("s14financetracker@gmail.com");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
+        }).start();
     }
 }

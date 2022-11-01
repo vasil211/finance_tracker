@@ -51,12 +51,13 @@ public class TransferService extends AbstractService {
 
     @Transactional
     private Transfer doTransfer(TransferDTO transferDTO, Account sender, Account receiver) {
-        // exchange currency if needed
         double amount = transferDTO.getAmount();
         if (sender.getCurrency().getId() != receiver.getCurrency().getId()) {
             Currency senderCurrency = sender.getCurrency();
             Currency receiverCurrency = receiver.getCurrency();
-            CurrencyExchangeDto dto = currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(), amount);
+            CurrencyExchangeDto dto =
+                    currencyExchangeService.getExchangedCurrency(senderCurrency.getCode(), receiverCurrency.getCode(),
+                            amount);
             amount = dto.getResult();
         }
         sender.removeFromBalance(transferDTO.getAmount());
@@ -106,15 +107,6 @@ public class TransferService extends AbstractService {
         return transferForReturnDTOS;
     }
 
-    public List<TransferForReturnDTO> getAllReceivedTransfersFromAccount(long id, long fromId, long userId) {
-        checkIfAccountBelongsToUser(id, userId);
-        List<Transfer> transfers = transferRepository.findAllByReceiverIdAndSenderId(id, fromId);
-        List<TransferForReturnDTO> transferForReturnDTOS = new ArrayList<>();
-        for (Transfer transfer : transfers) {
-            transferForReturnDTOS.add(mapTransferForReturnDTO(transfer));
-        }
-        return transferForReturnDTOS;
-    }
 
     private TransferForReturnDTO mapTransferForReturnDTO(Transfer transfer) {
         TransferForReturnDTO transferForReturnDTO = new TransferForReturnDTO();

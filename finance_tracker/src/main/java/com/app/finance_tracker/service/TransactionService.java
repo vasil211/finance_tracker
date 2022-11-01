@@ -144,7 +144,7 @@ public class TransactionService extends AbstractService {
                 throw new UnauthorizedException("Dont have access for this action");
         }
 
-        List<Transaction> transactions = transactionDAO.testFilter(ownAccounts, transactionFilteredDto.getFromAmount(),
+        List<Transaction> transactions = transactionDAO.getFIlteredTransactions(ownAccounts, transactionFilteredDto.getFromAmount(),
                 transactionFilteredDto.getToAmount(), transactionFilteredDto.getFromDate(),
                 transactionFilteredDto.getToDate(), wantedCategories);
 
