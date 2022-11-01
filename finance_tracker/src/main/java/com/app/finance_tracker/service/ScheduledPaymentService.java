@@ -90,9 +90,11 @@ public class ScheduledPaymentService extends AbstractService{
         //get all scheduled payments
         System.out.println(LocalDate.now());
         List<ScheduledPayment> scheduledPayments = scheduledPaymentRepository.findAll().stream().filter(sp -> sp.getDueDate().equals(LocalDate.now())).toList();
-        for (ScheduledPayment sp: scheduledPayments) {
-            if (sp.getAccount().getBalance()>=sp.getAmount()){
+        if (!scheduledPayments.isEmpty()) {
+            for (ScheduledPayment sp : scheduledPayments) {
+                if (sp.getAccount().getBalance() >= sp.getAmount()) {
 
+                }
             }
         }
 
