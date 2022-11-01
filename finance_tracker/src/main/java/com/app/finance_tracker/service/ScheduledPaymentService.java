@@ -121,6 +121,7 @@ public class ScheduledPaymentService extends AbstractService {
                     emailService.sendSimpleMessage(sp.getAccount().getUser().getEmail(),
                             "Scheduled payment failed",
                             "Scheduled payment '" + sp.getTitle() + "' failed because you dont have enough money on your account");
+
                 }
             }
         }
