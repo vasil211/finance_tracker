@@ -7,6 +7,7 @@ import com.app.finance_tracker.model.exceptions.NotFoundException;
 import com.app.finance_tracker.model.exceptions.UnauthorizedException;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentCreateDto;
 import com.app.finance_tracker.model.dto.scheduledpaymentDTO.ScheduledPaymentResponseDto;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -117,7 +118,6 @@ public class ScheduledPaymentService extends AbstractService {
                             "You have successfully made scheduled payment for '" + sp.getTitle() + "'. Amount: " +
                                     sp.getAmount() + sp.getAccount().getCurrency().getCode() + " on "
                                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
-                    scheduledPaymentRepository.delete(sp);
                 } else {
                     emailService.sendSimpleMessage(sp.getAccount().getUser().getEmail(),
                             "Scheduled payment failed",
