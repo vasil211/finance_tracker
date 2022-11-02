@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,7 +62,6 @@ public class UserController extends AbstractController {
         List<UserWithoutPasswordDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-
 
 //    @Autowired
 //    private CurrencyRepository currencyRepository;

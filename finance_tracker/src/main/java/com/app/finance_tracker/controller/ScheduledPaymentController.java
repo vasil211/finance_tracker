@@ -43,11 +43,10 @@ public class ScheduledPaymentController extends AbstractController {
         return new ResponseEntity<>(list,HttpStatus.OK);
     }
 
-    @DeleteMapping("/accounts/scheduled_payments/{id}")
-    public ResponseEntity<String> deleteSchedulePayment(@RequestParam long accountId, @PathVariable long id,
-                                                        HttpServletRequest request){
+    @DeleteMapping("/accounts/scheduled_payments")
+    public ResponseEntity<String> deleteSchedulePayment(@RequestParam long id, HttpServletRequest request){
         long userId = checkIfLoggedAndReturnUserId(request);
-        String message = scheduledPaymentService.deleteScheduledPayment(accountId,id, userId);
+        String message = scheduledPaymentService.deleteScheduledPayment(id, userId);
         return ResponseEntity.ok(message);
     }
     @PutMapping("/accounts/scheduled_payments/{id}")

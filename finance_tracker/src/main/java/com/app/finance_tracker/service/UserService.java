@@ -18,6 +18,8 @@ public class UserService extends AbstractService {
 
     @Autowired
     private PasswordEncoder encoder;
+    @Autowired
+    private AccountService accountService;
 
     public User loginUser(UserLoginDTO userDTO) {
         if (!userValidation.validateUsername(userDTO.getUsername())) {
@@ -78,4 +80,6 @@ public class UserService extends AbstractService {
                 emailService.sendSimpleMessage(user.getEmail(), subject, text);
             }
     }
+
+
 }

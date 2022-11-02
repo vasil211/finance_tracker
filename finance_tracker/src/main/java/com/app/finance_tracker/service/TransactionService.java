@@ -50,7 +50,6 @@ public class TransactionService extends AbstractService {
         return list;
     }
 
-    //TODO FIX THIS TO GET THE LIST WITH QUERY
     public List<TransactionReturnDto> getAllForUser(long userId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("user not found.");
@@ -59,14 +58,6 @@ public class TransactionService extends AbstractService {
         List<TransactionReturnDto> result = transactions.stream().map(t -> modelMapper.map(t, TransactionReturnDto.class)).toList();
         return result;
     }
-
-    /*public List<TransactionReturnDto> getAllByUserIdAfterDate(long userId, LocalDate date) {
-        List<TransactionReturnDto> list = getAllByUserId(userId).stream()
-                .filter(t -> t.getCreatedAt().isAfter(ChronoLocalDateTime.from(date)))
-                .toList();
-
-        return list;
-    }*/
 
     @Transactional
     public TransactionReturnDto createTransaction(CreateTransactionDto transactionDto, long id, long userId) {

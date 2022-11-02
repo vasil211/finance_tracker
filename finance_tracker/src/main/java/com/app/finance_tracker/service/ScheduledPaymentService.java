@@ -79,9 +79,9 @@ public class ScheduledPaymentService extends AbstractService {
 
     }
 
-    public String deleteScheduledPayment(long accountId, long id, long userId) {
-        checkIfAccountBelongsToUser(accountId, userId);
+    public String deleteScheduledPayment(long id, long userId) {
         ScheduledPayment payment = getScheduledPaymentById(id);
+        checkIfAccountBelongsToUser(payment.getAccount().getId(), userId);
         scheduledPaymentRepository.delete(payment);
         return "Scheduled payment '" + payment.getTitle() + "' deleted successfully";
     }
@@ -117,6 +117,7 @@ public class ScheduledPaymentService extends AbstractService {
                             "You have successfully made scheduled payment for '" + sp.getTitle() + "'. Amount: " +
                                     sp.getAmount() + sp.getAccount().getCurrency().getCode() + " on "
                                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm")));
+                    scheduledPaymentRepository.delete(sp);
                 } else {
                     emailService.sendSimpleMessage(sp.getAccount().getUser().getEmail(),
                             "Scheduled payment failed",
@@ -124,6 +125,7 @@ public class ScheduledPaymentService extends AbstractService {
 
                 }
             }
+
         }
     }
 }
