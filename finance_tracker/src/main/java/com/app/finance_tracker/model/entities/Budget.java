@@ -16,10 +16,8 @@ public class Budget {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     @Column
     private double amount;
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -33,9 +31,9 @@ public class Budget {
     private Currency currency;
 
     @Column(name = "from_date")
-    private Date fromDate;
+    private LocalDate fromDate;
     @Column(name = "to_date")
-    private Date toDate;
+    private LocalDate toDate;
     @Column(name = "original_budget")
     private double originalBudget;
     public void increaseAmount(double amount){

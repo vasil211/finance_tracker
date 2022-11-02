@@ -65,8 +65,8 @@ public class TransferService extends AbstractService {
         receiver.increaseBalance(amount);
         accountRepository.save(receiver);
         Transfer transfer = new Transfer();
-        transfer.setAmount(amount);
-        transfer.setCurrency(receiver.getCurrency());
+        transfer.setAmount(transferDTO.getAmount());
+        transfer.setCurrency(sender.getCurrency());
         transfer.setReceiver(receiver);
         transfer.setSender(sender);
         transfer.setDate(LocalDateTime.now());

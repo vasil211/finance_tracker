@@ -28,7 +28,8 @@ public class BudgetService extends AbstractService {
     private BudgetValidation budgetValidation;
     @Autowired
     private BudgetRepository budgetRepository;
-
+    @Autowired
+    private CurrencyExchangeService currencyExchangeService;
     public BudgetReturnDto editBudget(EditBudgetDto budgetDto, long userId) {
         Budget budget = getBudgetById(budgetDto.getId());
         if (budget.getUser().getId() != userId) {
@@ -44,11 +45,23 @@ public class BudgetService extends AbstractService {
             Category wantedCategory = getCategoryById(budgetDto.getCategoryId());
             budget.setCategory(wantedCategory);
         }
-        if (budget.getCategory().getId() != budgetDto.getCurrencyId()) {
+        if(budget.getCurrency().getId() != budgetDto.getCurrencyId()){
             Currency currency = getCurrencyById(budgetDto.getCurrencyId());
+            double originalAmount = currencyExchangeService.getExchangedCurrency(budget.getCurrency().getCode(),
+                    currency.getCode(), budget.getOriginalBudget()).getResult();
+            budget.setOriginalBudget(originalAmount);
+            double amount = currencyExchangeService.getExchangedCurrency(budget.getCurrency().getCode(),
+                    currency.getCode(), budget.getAmount()).getResult();
             budget.setCurrency(currency);
+            budget.setOriginalBudget(originalAmount);
+            budget.setAmount(amount);
         }
-        budget.setAmount(budget.getAmount());
+
+        if (budget.getOriginalBudget() != budgetDto.getAmount()) {
+            budget.setAmount(budgetDto.getAmount() - (budget.getOriginalBudget() - budget.getAmount()));
+            budget.setOriginalBudget(budgetDto.getAmount());
+        }
+
         budget.setFromDate(budgetDto.getFromDate());
         budget.setToDate(budgetDto.getToDate());
         budgetRepository.save(budget);
@@ -69,7 +82,6 @@ public class BudgetService extends AbstractService {
         }
         User user = getUserById(budgetDto.getUserId());
         Category category = getCategoryById(budgetDto.getCategoryId());
-        //check if user has that category
         if (category.getUser() != null && category.getUser().getId() != user.getId()) {
             throw new NotFoundException("You dont have such category.");
         }
@@ -106,22 +118,6 @@ public class BudgetService extends AbstractService {
         return modelMapper.map(budget, BudgetReturnDto.class);
     }
 
-    //TODO set money
-    public BudgetReturnDto addMoneyToBudget(long userId, long id, double amount) {
-        if (!isValidAmount(amount)) {
-            throw new InvalidArgumentsException("money cannot be 0 or less");
-        }
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User not found.");
-        }
-        Budget budget = getBudgetById(id);
-        if (budget.getUser().getId() != userId) {
-            throw new UnauthorizedException("dont have permission for this action");
-        }
-        budget.increaseAmount(amount);
-        budgetRepository.save(budget);
-        return modelMapper.map(budget, BudgetReturnDto.class);
-    }
 
     public void deleteBudget(long userId, long id) {
         Budget budget = getBudgetById(id);
@@ -130,4 +126,5 @@ public class BudgetService extends AbstractService {
         }
         budgetRepository.delete(budget);
     }
+    // cron job - if today is from date(day of month) -> reset amount to original amount
 }

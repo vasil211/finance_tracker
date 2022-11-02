@@ -12,9 +12,9 @@ public class CreateBudgetDto {
 
     private double amount;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date fromDate;
+    private LocalDate fromDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date toDate;
+    private LocalDate toDate;
     private long userId;
     private long categoryId;
     private long currencyId;

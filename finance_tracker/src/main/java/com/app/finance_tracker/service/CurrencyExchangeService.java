@@ -2,7 +2,12 @@ package com.app.finance_tracker.service;
 
 import com.app.finance_tracker.model.dto.currencyDTO.CurrencyExchangeDto;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.sun.net.httpserver.Headers;
+import lombok.SneakyThrows;
+import netscape.javascript.JSObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -21,11 +26,13 @@ import java.util.Scanner;
 public class CurrencyExchangeService  extends AbstractService{
     @Autowired
     private RestTemplate restTemplate;
-
+    @Autowired
+    ObjectMapper mapper = new ObjectMapper();
     public CurrencyExchangeService(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
     }
 
+    @SneakyThrows
     public CurrencyExchangeDto getExchangedCurrency(String from, String to, double amount) {
 
         StringBuilder sb = new StringBuilder();
@@ -38,7 +45,6 @@ public class CurrencyExchangeService  extends AbstractService{
         headers.set("apikey", key);
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-
         ResponseEntity<CurrencyExchangeDto> response;
         try{
             response =

@@ -57,14 +57,4 @@ public class AccountController extends AbstractController {
         AccountForReturnDTO account = accountService.getAccount(id);
         return ResponseEntity.ok(account);
     }
-
-    @DeleteMapping("/accounts/{id}")
-    public ResponseEntity<MessageDTO> deleteAccount(@PathVariable long id, HttpServletRequest request) {
-        long userId = checkIfLoggedAndReturnUserId(request);
-        MessageDTO message = accountService.deleteAccount(id, userId);
-        return ResponseEntity.ok(message);
-    }
-
-
-
 }

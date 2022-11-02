@@ -1,5 +1,6 @@
 package com.app.finance_tracker.service;
 
+import com.app.finance_tracker.model.entities.Currency;
 import com.app.finance_tracker.model.exceptions.BadRequestException;
 import com.app.finance_tracker.model.exceptions.InvalidArgumentsException;
 import com.app.finance_tracker.model.dto.MessageDTO;
@@ -21,6 +22,8 @@ public class AccountService extends AbstractService {
 
     @Autowired
     private CategoryService categoryService;
+    @Autowired
+    private CurrencyExchangeService currencyExchangeService;
     public AccountForReturnDTO addAccount(AccountCreateDTO accountDTO, long userId) {
         accountValidation.validateAccountForCreation(accountDTO);
         Account account = new Account();
@@ -46,10 +49,17 @@ public class AccountService extends AbstractService {
     public AccountForReturnDTO updateAccount(AccountForUpdateDTO accountDTO, long userId) {
         checkIfAccountBelongsToUser(accountDTO.getId(), userId);
         accountValidation.validateAccountForUpdate(accountDTO);
-        Account account = new Account();
-        account.setName(accountDTO.getName());
-        account.setCurrency(currencyRepository.findById(accountDTO.getCurrencyId())
-                .orElseThrow(() -> new BadRequestException("Invalid currency id")));
+        Account account = getAccountById(accountDTO.getId());
+        if(!account.getName().equals(accountDTO.getName())){
+            account.setName(accountDTO.getName());
+        }
+        if(accountDTO.getCurrencyId() != account.getCurrency().getId()){
+            Currency currency = getCurrencyById(accountDTO.getCurrencyId());
+            double  amount = currencyExchangeService.getExchangedCurrency(account.getCurrency().getCode(),
+                    currency.getCode(), account.getBalance()).getResult();
+            account.setBalance(amount);
+            account.setCurrency(currency);
+        }
         accountRepository.save(account);
         return modelMapper.map(account, AccountForReturnDTO.class);
     }
@@ -67,19 +77,6 @@ public class AccountService extends AbstractService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Account not found"));
         return modelMapper.map(account, AccountForReturnDTO.class);
-    }
-    @Transactional
-    public MessageDTO deleteAccount(long id, long userId) {
-        checkIfAccountBelongsToUser(id,userId);
-        Account account = getAccountById(id);
-        transferRepository.deleteAllBySenderIdAndReceiverId(account.getId(), account.getId());
-        scheduledPaymentRepository.deleteAllByAccountId(account.getId());
-        transactionRepository.deleteAllByAccountId(account.getId());
-        categoryService.deleteAllCategoriesForAccount(account.getId());
-        accountRepository.delete(account);
-        MessageDTO messageDTO = new MessageDTO();
-        messageDTO.setMessage("Account deleted successfully");
-        return messageDTO;
     }
 
     public void checkIfAccountBelongsToUser(long postId, long userId) {

@@ -12,6 +12,7 @@ import java.util.Date;
 public class BudgetReturnDto {
     private long id;
     private double amount;
+    private double originalBudget;
     private UserWithoutPasswordDTO user;
     private CategoryForReturnDTO category;
     private Date fromDate;
