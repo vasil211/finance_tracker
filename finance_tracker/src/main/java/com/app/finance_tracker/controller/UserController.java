@@ -36,7 +36,7 @@ public class UserController extends AbstractController {
     public ResponseEntity<UserWithoutPasswordDTO> loginUser(@RequestBody UserLoginDTO userDTO, HttpServletRequest request) {
         User user = userService.loginUser(userDTO);
         logUser(request, user.getId());
-        // emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
+        emailService.sendSimpleMessage(user.getEmail(), "Login", "You have logged in successfully!");
         return ResponseEntity.ok(modelMapper.map(user, UserWithoutPasswordDTO.class));
     }
 

@@ -31,7 +31,7 @@ public class ScheduledPaymentService extends AbstractService {
         }
         if (scheduledPaymentCreateDto.getDueDate().isBefore(LocalDate.now())) {
 
-            throw new BadRequestException("Invalid date input");
+            throw new BadRequestException("Date cant be in the past");
         }
         Category category = getCategoryById(scheduledPaymentCreateDto.getCategoryId());
 
